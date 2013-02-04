@@ -30,6 +30,30 @@ function setValue(id, v, type){
     $('#'+id).val(v);
 }
 
+function setAttribute(id, metadata){
+    var del = delmtr();
+    var field = null;
+    var p = null;
+    var v = null;
+    var ds = null;
+    var tmp = null;    
+    for(var i = 0; i < metadata.length; i++){
+        tmp = metadata[i];
+        p = tmp.substring(0, tmp.indexOf(del));
+        v = tmp.substr(tmp.indexOf(del)+1);
+        if(p === "ds"){
+            ds = v;
+        }
+        if(p === "field"){
+            field = v;
+        }
+        $('#'+id).attr(p, v);
+    }
+    if(ds !== null){
+        addToCalls(id, ds, field, 1);
+    }    
+}
+
 function initDocs(){
     var params = getParams();
     var arr = callsStack;
@@ -49,27 +73,7 @@ function initDocs(){
 }
 
 function TextInputCtrl(id, metadata){
-    var del = delmtr();
-    var field = null;
-    var p = null;
-    var v = null;
-    var ds = null;
-    var tmp = null;
-    for(var i = 0; i < metadata.length; i++){
-        tmp = metadata[i];
-        p = tmp.substring(0, tmp.indexOf(del));
-        v = tmp.substr(tmp.indexOf(del)+1);
-        if(p === "ds"){
-            ds = v;
-        }
-        if(p === "field"){
-            field = v;
-        }
-        $('#'+id).attr(p, v);
-    }
-    if(ds !== null){
-        addToCalls(id, ds, field, 1);
-    }
+    setAttribute(id, metadata);
 }
 
 function emailEnter(){
