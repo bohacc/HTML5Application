@@ -3,23 +3,25 @@ Javascript classes - JQueryMobile objects, MVC model
 */
 var callsStack = [];
 
-function CallStack(aid, ads, afield, atype){
+function CallStack(aid, ads, afield, atype, amulti){
     this._id = aid;
     this._ds = ads;
     this._field = afield;
-    this._type = atype;
+    this._type = atype; // 1 row, 2 list
+    this._multi = amulti;
 }
 
 function regCtrl(id, id_ctrl, metadata){
     if(id_ctrl == 1){ TextInputCtrl(id, metadata); } // input
+    if(id_ctrl == 2){ CollapsibleListCtrl(id, metadata); } // input
 }
 
 function delmtr(){
     return ":";
 }
 
-function addToCalls(aid, ads, afield, atype){
-    callsStack.push(new CallStack(aid, ads, afield, atype));
+function addToCalls(aid, ads, afield, atype, amulti){
+    callsStack.push(new CallStack(aid, ads, afield, atype, amulti));
 }
 
 function getParams(){
@@ -27,10 +29,15 @@ function getParams(){
 };
 
 function setValue(id, v, type){
-    $('#'+id).val(v);
+    if(type == 1){
+        $('#'+id).val(v);
+    }
+    if(type == 2){
+        $('#'+id).append('<p>'+v+'</p>');
+    }
 }
 
-function setAttribute(id, metadata){
+function setAttribute(id, metadata, type, multi){
     var del = delmtr();
     var field = null;
     var p = null;
@@ -50,7 +57,7 @@ function setAttribute(id, metadata){
         $('#'+id).attr(p, v);
     }
     if(ds !== null){
-        addToCalls(id, ds, field, 1);
+        addToCalls(id, ds, field, type, multi);
     }    
 }
 
@@ -64,20 +71,32 @@ function initDocs(){
         var afield = tmp._field;
         var aid = tmp._id;
         var atype = tmp._type;
+        var amulti = tmp._multi;
         nAjax('web_redir?aparameters=akod_r:'+acall+'&aparameters=spouzetelo:1'+params, function(data){
             var data_fmt = $.parseJSON(data);
-            var v = data_fmt[afield];
-            setValue(aid, v, atype);
+            switch(amulti){
+                case 1: 
+                    var v = data_fmt[afield];
+                    setValue(aid, v, atype);
+                    break;
+                case 2:
+                    for (var i=0;i<data_fmt.length;i++){
+                        var tmp = data_fmt[i];
+                        var v = tmp[afield];
+                        setValue(aid, v, atype);
+                    }
+                    break;
+            }
         });
     }
 }
 
 function TextInputCtrl(id, metadata){
-    setAttribute(id, metadata);
+    setAttribute(id, metadata, 1, 1);
 }
 
 function CollapsibleListCtrl(id, metadata){
-    
+    setAttribute(id, metadata, 2, 2);
 }
 
 function emailEnter(){
@@ -85,4 +104,5 @@ function emailEnter(){
 }
 
 regCtrl('aemail',1,['onclick:test(this)','onkeypress:emailEnter(this)','ds:web_test_json','field:email']);
+regCtrl('acollapsiblelist',2,['ds:web_test_json','field:popis']);
 initDocs();
