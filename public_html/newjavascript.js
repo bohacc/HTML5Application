@@ -76,6 +76,10 @@ function TextInputCtrl(id, metadata){
     setAttribute(id, metadata);
 }
 
+function CollapsibleListCtrl(id, metadata){
+    
+}
+
 function emailEnter(){
     alert('Event');
 }
