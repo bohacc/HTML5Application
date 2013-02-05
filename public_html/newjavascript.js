@@ -228,7 +228,7 @@ function emailEnter(event, obj){
 
 
 
-// INICIALIZACE CONTROLLERU
+// INICIALIZACE CONTROLLERU 
 
 $(document).live('pageinit', function(event){
   regCtrl('aemail',1,['onkeypress:emailEnter(event, this)']);
