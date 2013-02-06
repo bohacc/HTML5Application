@@ -11,5 +11,4 @@ $(document).live('pageinit', function(event){
   regCtrl('amobil', 3, ['ds:web_adresar_zaz_pda_json', 'ds_par:&aparameters=code:'+getParQS('apartner'), 'field:mobil']);
   regCtrl('aemail', 3, ['ds:web_adresar_zaz_pda_json', 'ds_par:&aparameters=code:'+getParQS('apartner'), 'field:email']);
   initDocs();
-  
 });
