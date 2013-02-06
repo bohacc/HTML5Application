@@ -10,9 +10,9 @@
      
       function nAjax( call, aparams, afunc, async, decURI, obj, fce ){
         var xasync = true;
-        var url_encode = aparams; //nEncodeUri( aparams ); 
+        var url_encode = nEncodeUri( aparams ); 
         var acharset = 'utf-8';
-        if ( async != null) { xasync = async; };
+        if ( async !== null) { xasync = async; };
         //alert(url_encode + '&aparameters=aajx:1&aparameters=rnd:'+Math.random()*99999);
         try{
           $.ajax( 
@@ -22,9 +22,9 @@
               success: 
                   function( data ) { 
                       var data_encode = ""+data; 
-                      if ( decURI == null || decURI == true) { 
-                          data_encode = decodeURIComponent( data );
-                      }; 
+                      //if ( decURI === null || decURI === true) { 
+                      //    data_encode = decodeURIComponent( data );
+                      //}; 
                       afunc( data_encode, obj, fce ); 
                   },            
               contentType: "application/x-www-form-urlencoded; charset="+acharset,
@@ -48,7 +48,18 @@
         };
       };    
     
-    
+function getParQS(arg){
+    var tmp = window.location.href;
+    var tmp_val = tmp.substr(tmp.indexOf(arg)+arg.length+1);
+    if(tmp_val.indexOf("&") > 0){
+        tmp_val = tmp_val.substr(0, tmp_val.indexOf("&")-1);
+    }
+    return tmp_val;
+} 
+
+function home(){
+    window.location.href='http://sun.notia.cz/nbs/web_redir_backend?ap=akod_r:CRM_KONTAKTY_PDA_PAGE1';
+}
     
     
 // CONTROLLER - MODEL MVC --------------------------------------------------------------
@@ -59,7 +70,7 @@ function clearCallsStack(){
     callsStack = [];
 }
 
-function CallStack(aid, ads, afield, atype, amulti, aparams, acallbackFce, arow_onclick){
+function CallStack(aid, ads, afield, atype, amulti, aparams, acallbackFce, arow_onclick, afield_ref_val){
     this._id = aid;
     this._ds = ads;
     this._field = afield;
@@ -68,36 +79,45 @@ function CallStack(aid, ads, afield, atype, amulti, aparams, acallbackFce, arow_
     this._params = aparams;
     this._callbackFce = acallbackFce;
     this._row_onclick = arow_onclick;
+    this._field_ref_val = afield_ref_val;
 }
 
 function regCtrl(id, id_ctrl, metadata){
-    if(id_ctrl == 1){ TextInputCtrl(id, metadata); } // input
-    if(id_ctrl == 2){ CollapsibleListCtrl(id, metadata); } // input
+    if(id_ctrl === 1){ TextInputCtrl(id, metadata); } // input
+    if(id_ctrl === 2){ CollapsibleListCtrl(id, metadata); } // listview
+    if(id_ctrl === 3){ LabelCtrl(id, metadata); } // label
 }
 
 function delmtr(){
     return ":";
 }
 
-function addToCalls(aid, ads, afield, atype, amulti, aparams, acallbackFce, arow_onclick){
-    callsStack.push(new CallStack(aid, ads, afield, atype, amulti, aparams, acallbackFce, arow_onclick));
+function addToCalls(aid, ads, afield, atype, amulti, aparams, acallbackFce, arow_onclick, afield_ref_val){
+    callsStack.push(new CallStack(aid, ads, afield, atype, amulti, aparams, acallbackFce, arow_onclick, afield_ref_val));
 }
 
 function getParams(){
     return "";
 };
 
-function setValue(id, v, type, row_onclick){
-    if(type == 1){
+function setValue(id, v, type, row_onclick, ref_val){
+    if(type === 1){
         $('#'+id).val(v);
     }
-    if(type == 2){
+    if(type === 2){
         var arow_onclick = "";
-        if(row_onclick != null){
+        var aref_val_hidden = "";
+        if(row_onclick !== null){
             arow_onclick = row_onclick;
         }
-        $('#'+id).append('<li><a href="javascript:void(0);" onclick="'+arow_onclick+'"><h3 class="ui-li-heading">'+v+'</h3></a><input type="hidden" value="'+v+'"></li>'); 
+        if(ref_val !== null){
+            aref_val_hidden = '<input type="hidden" value="'+ref_val+'">';
+        }
+        $('#'+id).append('<li><a href="javascript:void(0);" onclick="'+arow_onclick+'"><h3 class="ui-li-heading">'+v+'</h3></a>'+aref_val_hidden+'</li>'); 
         $('#'+id).listview('refresh');
+    }
+    if(type === 3){
+        $('#'+id).html(v);
     }
 }
 
@@ -110,7 +130,8 @@ function setAttribute(id, metadata, type, multi){
     var tmp = null; 
     var params = null; 
     var acallbackFce = null;
-    var arow_onclick = null;  
+    var arow_onclick = null;
+    var afield_ref_val = null;
     for(var i = 0; i < metadata.length; i++){
         tmp = metadata[i];
         p = tmp.substring(0, tmp.indexOf(del));
@@ -130,10 +151,13 @@ function setAttribute(id, metadata, type, multi){
         if(p === "row_onclick"){
             arow_onclick = v;
         }
+        if(p === "field_ref_val"){
+            afield_ref_val = v;
+        }
         $('#'+id).attr(p, v);
     }
     if(ds !== null){
-        addToCalls(id, ds, field, type, multi, params, acallbackFce, arow_onclick);
+        addToCalls(id, ds, field, type, multi, params, acallbackFce, arow_onclick, afield_ref_val);
     }    
 }
 
@@ -143,7 +167,7 @@ function initDocs(){
         var tmp = arr[i];
         var acall = tmp._ds; 
         var params = "";
-        if(tmp._params != null){
+        if(tmp._params !== null){
             params = tmp._params;
         };
         var fce = tmp._callbackFce;
@@ -153,21 +177,30 @@ function initDocs(){
             var atype = tmpc._type;
             var amulti = tmpc._multi;
             var arow_onclick = tmpc._row_onclick;
+            var afield_ref_val = tmpc._field_ref_val;
             var data_fmt = $.parseJSON(data);
             switch(amulti){
                 case 1: 
-                    var v = data_fmt[afield];
-                    setValue(aid, v, atype, arow_onclick);
-                    if(fce != null){
+                    var v = decodeURIComponent(data_fmt[afield]);
+                    var v_ref = "";
+                    if(afield_ref_val !== null){
+                        v_ref = decodeURIComponent(data_fmt[afield_ref_val]);
+                    }
+                    setValue(aid, v, atype, arow_onclick, v_ref);
+                    if(fce !== null){
                         eval(fce);
                     };
                     break;
                 case 2: 
                     for (var i=0;i<data_fmt.length;i++){
                         var tmp = data_fmt[i];
-                        var v = tmp[afield];
-                        setValue(aid, v, atype, arow_onclick);
-                        if(fce != null){
+                        var v = decodeURIComponent(tmp[afield]);
+                        var v_ref = "";
+                        if(afield_ref_val !== null){
+                            v_ref = decodeURIComponent(tmp[afield_ref_val]);
+                        }
+                        setValue(aid, v, atype, arow_onclick, v_ref);
+                        if(fce !== null){
                             eval(fce);
                         };
                     }
@@ -185,53 +218,8 @@ function CollapsibleListCtrl(id, metadata){
     setAttribute(id, metadata, 2, 2);
 }
 
+function LabelCtrl(id, metadata){
+    setAttribute(id, metadata, 3, 1);
+}
+
 // --------------------------------------------------------------------------
-
-
-
-// FUNKCE PRO FORMULAR -------
-
-function setPageAfterSearch(){
-    $('#acollapsiblelist').hide();
-    $('#acollapsiblelist').empty();
-};
-
-function setPageAfterSearchCallback(){
-    $('#acollapsiblelist').show();
-}
-
-function printResult(obj){
-    // INICIALIZACE CONTROLLERU
-    
-    regCtrl('acollapsiblelist',
-            2,
-            ['ds:web_search_adresar_pda_json',
-             'ds_par:&aparameters=code:'+$(obj).val(),
-             'row_onclick:saveSearchText(this);',
-             'field:partner',
-             'callbackFce:setPageAfterSearchCallback()']);
-    initDocs();
-};
-
-function saveSearchText(obj){
-    var tmp = $(obj).next().val(); 
-    nAjax('web_redir','&aparameters=akod_r:web_search_text_save_json&aparameters=spouzetelo:1&aparameters=code:'+tmp,function(data){});
-}
-
-function emailEnter(event, obj){
-    if(event.keyCode == '13'){
-      clearCallsStack();
-      setPageAfterSearch();
-      printResult(obj); 
-    }
-}
-
-
-
-// INICIALIZACE CONTROLLERU 
-
-$(document).live('pageinit', function(event){
-  regCtrl('aemail',1,['onkeypress:emailEnter(event, this)']);
-  regCtrl('acollapsiblelist',2,['ds:web_last_search_json','ds_par:&aparameters=code:PDA_SEARCH','field:str']);
-  initDocs();
-});
