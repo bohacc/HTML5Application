@@ -222,7 +222,7 @@ function emailEnter(event, obj){
     if(event.keyCode == '13'){
       clearCallsStack();
       setPageAfterSearch();
-      printResult(obj);
+      printResult(obj); 
     }
 }
 
