@@ -55,7 +55,11 @@ function getParQS(arg){
         tmp_val = tmp_val.substr(0, tmp_val.indexOf("&")-1);
     }
     return tmp_val;
-}    
+} 
+
+function home(){
+    window.location.href='http://sun.notia.cz/nbs/web_redir_backend?ap=akod_r:CRM_KONTAKTY_PDA_PAGE1';
+}
     
     
 // CONTROLLER - MODEL MVC --------------------------------------------------------------

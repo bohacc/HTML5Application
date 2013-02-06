@@ -3,7 +3,7 @@
 $(document).live('pageinit', function(event){
   regCtrl('apartner', 3, ['ds:web_adresar_zaz_pda_json', 'ds_par:&aparameters=code:'+getParQS('apartner'), 'field:partner']);
   regCtrl('anazev', 3, ['ds:web_adresar_zaz_pda_json', 'ds_par:&aparameters=code:'+getParQS('apartner'), 'field:nazev']);
-  regCtrl('ajmeno', 3, ['ds:web_adresar_zaz_pda_json', 'ds_par:&aparameters=code:'+getParQS('apartner'), 'field:jmeno_prijmeni']);
+  regCtrl('ajmeno', 3, ['ds:web_adresar_zaz_pda_json', 'ds_par:&aparameters=code:'+getParQS('apartner'), 'field:osoba']);
   regCtrl('aadresa1', 3, ['ds:web_adresar_zaz_pda_json', 'ds_par:&aparameters=code:'+getParQS('apartner'), 'field:adresa1']);
   regCtrl('aadresa2', 3, ['ds:web_adresar_zaz_pda_json', 'ds_par:&aparameters=code:'+getParQS('apartner'), 'field:adresa2']);
   regCtrl('atelefon1', 3, ['ds:web_adresar_zaz_pda_json', 'ds_par:&aparameters=code:'+getParQS('apartner'), 'field:telefon1']);
