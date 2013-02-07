@@ -48,18 +48,62 @@
         };
       };    
     
-function getParQS(arg){
-    var tmp = window.location.href;
-    var tmp_val = tmp.substr(tmp.indexOf(arg)+arg.length+1);
-    if(tmp_val.indexOf("&") > 0){
-        tmp_val = tmp_val.substr(0, tmp_val.indexOf("&")-1);
+function getParam(name) {
+  var searchString = window.location.search.substring(1);
+  var i;
+  var val = "";
+  var params = searchString.split("&");
+  for (i=0;i<params.length;i++) {
+    val = params[i].split("=");
+    var tmp = decodeURIComponent(val[1]).split(":"); 
+    if (tmp[0] == name) {
+      return unescape(tmp[1]);
     }
-    return tmp_val;
-} 
+  }
+  return null;
+}
+
+function goToPageWithParams(call, params){
+    var str = "";
+    var tmp = params.replace(/ap=/g,'');
+    while(tmp.indexOf('&') > 0){
+        var val = tmp.substr(0, tmp.indexOf('&'));
+        str += '  <input type="hidden" name="ap" value="'+val+'">';
+        tmp = tmp.substr(tmp.indexOf('&') + 1);
+    }
+    if(params !== null){
+        str += '  <input type="hidden" name="ap" value="'+tmp+'">';
+    }
+    $('body').append('<form name="form_page" action="'+call+'" data-ajax="false" method="get">'+
+                     str+
+                     '</form>');
+    $('form').submit();
+}
+
+function goToPage(page){
+    $('body').append('<form name="form_page" action="web_redir_backend" data-ajax="false" method="post">'+
+                     '  <input type="hidden" name="ap" value="akod_r:'+page+'">'+
+                     '</form>');
+    $('form').submit();
+}
 
 function home(){
-    window.location.href='http://sun.notia.cz/nbs/web_redir_backend?ap=akod_r:CRM_KONTAKTY_PDA_PAGE1';
+    goToPage("CRM_KONTAKTY_PDA_PAGE1");
 }
+    
+function setPageHead(){
+     $('#bt_home').attr("onclick","home()");
+};
+
+function setPageFoot(){
+     
+};
+
+function initPage(){
+    setPageHead();
+    setPageFoot();
+}
+    
     
     
 // CONTROLLER - MODEL MVC --------------------------------------------------------------
@@ -70,7 +114,7 @@ function clearCallsStack(){
     callsStack = [];
 }
 
-function CallStack(aid, ads, afield, atype, amulti, aparams, acallbackFce, arow_onclick, afield_ref_val){
+function CallStack(aid, ads, afield, atype, amulti, aparams, acallbackFce, arow_events, afield_ref_val, anested_fields){
     this._id = aid;
     this._ds = ads;
     this._field = afield;
@@ -78,46 +122,99 @@ function CallStack(aid, ads, afield, atype, amulti, aparams, acallbackFce, arow_
     this._multi = amulti;
     this._params = aparams;
     this._callbackFce = acallbackFce;
-    this._row_onclick = arow_onclick;
+    this._row_events = arow_events;
     this._field_ref_val = afield_ref_val;
+    this._nested_fields = anested_fields;
 }
 
 function regCtrl(id, id_ctrl, metadata){
     if(id_ctrl === 1){ TextInputCtrl(id, metadata); } // input
-    if(id_ctrl === 2){ CollapsibleListCtrl(id, metadata); } // listview
+    if(id_ctrl === 2){ ListviewCtrl(id, metadata); } // listview
     if(id_ctrl === 3){ LabelCtrl(id, metadata); } // label
+    if(id_ctrl === 4){ CollapsibleListCtrl(id, metadata); } // collapsible list
 }
 
 function delmtr(){
     return ":";
 }
 
-function addToCalls(aid, ads, afield, atype, amulti, aparams, acallbackFce, arow_onclick, afield_ref_val){
-    callsStack.push(new CallStack(aid, ads, afield, atype, amulti, aparams, acallbackFce, arow_onclick, afield_ref_val));
+function addToCalls(aid, ads, afield, atype, amulti, aparams, acallbackFce, arow_events, afield_ref_val, anested_fields){
+    callsStack.push(new CallStack(aid, ads, afield, atype, amulti, aparams, acallbackFce, arow_events, afield_ref_val, anested_fields));
 }
 
 function getParams(){
     return "";
 };
 
-function setValue(id, v, type, row_onclick, ref_val){
+function setValue(id, v, type, row_events, ref_val, nested_fields){
     if(type === 1){
         $('#'+id).val(v);
     }
     if(type === 2){
-        var arow_onclick = "";
+        var arow_events = "";
         var aref_val_hidden = "";
-        if(row_onclick !== null){
-            arow_onclick = row_onclick;
-        }
+        var ref_val_id = "";
         if(ref_val !== null){
             aref_val_hidden = '<input type="hidden" value="'+ref_val+'">';
+            ref_val_id = "id_"+ref_val;
         }
-        $('#'+id).append('<li><a href="javascript:void(0);" onclick="'+arow_onclick+'"><h3 class="ui-li-heading">'+v+'</h3></a>'+aref_val_hidden+'</li>'); 
+        $('#'+id).append('<li id="'+ref_val_id+'">'+
+                         '  <a href="javascript:void(0);">'+
+                         '    <h3 class="ui-li-heading">'+v+'</h3>'+
+                         '  </a>'+
+                         aref_val_hidden+
+                         '</li>'); 
+        if(row_events != null){
+            for(var i=0;i<row_events.length;i++){
+                var vals = row_events.split(':');
+                var p = vals[0];
+                var v = vals[1];
+                $('#'+ref_val_id).attr(p, v);
+            }
+        }
         $('#'+id).listview('refresh');
     }
     if(type === 3){
         $('#'+id).html(v);
+    }
+    if(type === 4){ // ve vystavbe!
+        var str = "";
+        var r_header = v.header;
+        var r_rows = v.rows;
+        var r_rownum = v.rownum;
+        var j = 0;
+        str += '<ul data-role="listview">';
+        for(var i=0;r_rows.length;i++){
+            var row = r_rows[i];
+            var fields = [];
+            var content_row = "";
+            if(nested_fields != null){
+                fields = nested_fields.split(";");
+            }
+            if(fields.length > 0){
+                for(var j=0;j<fields.length;j++){
+                    var tmp = row[fields[j]];
+                    content_row += '<div>'+tmp+'</div>';
+                }
+            }
+            /*if(r_header == 0){
+                str += "";
+            }*/
+            str += '<li>'+
+                   '  <a href="javascript:void(0);" onclick="'+arow_events+'">'+
+                   content_row+
+                   '  </a>'+
+                   aref_val_hidden+
+                   '</li>';
+        }
+        str += '</ul>';
+        $('#cl_kontakty h3').each(function(){
+            j++;
+            if(r_rownum == j){
+                $(this).after(str);
+            } 
+        });
+        $('ul').listview('refresh');
     }
 }
 
@@ -130,8 +227,9 @@ function setAttribute(id, metadata, type, multi){
     var tmp = null; 
     var params = null; 
     var acallbackFce = null;
-    var arow_onclick = null;
+    var arow_events = null;
     var afield_ref_val = null;
+    var anested_fields = null;
     for(var i = 0; i < metadata.length; i++){
         tmp = metadata[i];
         p = tmp.substring(0, tmp.indexOf(del));
@@ -148,16 +246,28 @@ function setAttribute(id, metadata, type, multi){
         if(p === "callbackFce"){
             acallbackFce = v;
         }
-        if(p === "row_onclick"){
-            arow_onclick = v;
+        if(p === "row_events"){
+            arow_events = v;
         }
         if(p === "field_ref_val"){
             afield_ref_val = v;
         }
+        if(p === "nested_fields"){
+            anested_fields = v;
+        }
         $('#'+id).attr(p, v);
     }
     if(ds !== null){
-        addToCalls(id, ds, field, type, multi, params, acallbackFce, arow_onclick, afield_ref_val);
+        addToCalls(id, 
+                   ds, 
+                   field, 
+                   type, 
+                   multi, 
+                   params, 
+                   acallbackFce, 
+                   arow_events, 
+                   afield_ref_val, 
+                   anested_fields);
     }    
 }
 
@@ -176,8 +286,9 @@ function initDocs(){
             var aid = tmpc._id;
             var atype = tmpc._type;
             var amulti = tmpc._multi;
-            var arow_onclick = tmpc._row_onclick;
+            var arow_events = tmpc._row_events;
             var afield_ref_val = tmpc._field_ref_val;
+            var anested_fields = tmpc._nested_fields;
             var data_fmt = $.parseJSON(data);
             switch(amulti){
                 case 1: 
@@ -187,9 +298,6 @@ function initDocs(){
                         v_ref = decodeURIComponent(data_fmt[afield_ref_val]);
                     }
                     setValue(aid, v, atype, arow_onclick, v_ref);
-                    if(fce !== null){
-                        eval(fce);
-                    };
                     break;
                 case 2: 
                     for (var i=0;i<data_fmt.length;i++){
@@ -199,13 +307,24 @@ function initDocs(){
                         if(afield_ref_val !== null){
                             v_ref = decodeURIComponent(tmp[afield_ref_val]);
                         }
-                        setValue(aid, v, atype, arow_onclick, v_ref);
-                        if(fce !== null){
-                            eval(fce);
-                        };
+                        setValue(aid, v, atype, arow_events, v_ref);
+                    }
+                    break;
+                case 3:
+                    for (var i=0;i<data_fmt.length;i++){
+                        var tmp = data_fmt[i];
+                        //var v = decodeURIComponent(tmp[afield]);
+                        var v_ref = "";
+                        if(afield_ref_val !== null){
+                            v_ref = decodeURIComponent(tmp[afield_ref_val]);
+                        }
+                        setValue(aid, tmp, atype, arow_events, v_ref, anested_fields);
                     }
                     break;
             }
+            if(fce !== null){
+                eval(fce);
+            };
         }, true, true, tmp, fce);
     }
 }
@@ -214,12 +333,16 @@ function TextInputCtrl(id, metadata){
     setAttribute(id, metadata, 1, 1);
 }
 
-function CollapsibleListCtrl(id, metadata){
+function ListviewCtrl(id, metadata){
     setAttribute(id, metadata, 2, 2);
 }
 
 function LabelCtrl(id, metadata){
     setAttribute(id, metadata, 3, 1);
+}
+
+function CollapsibleListCtrl(id, metadata){
+    setAttribute(id, metadata, 4, 2);
 }
 
 // --------------------------------------------------------------------------

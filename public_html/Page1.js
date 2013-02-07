@@ -16,7 +16,7 @@ function printResult(obj){
             2,
             ['ds:web_search_adresar_pda_json',
              'ds_par:&aparameters=code:'+$(obj).val(),
-             'row_onclick:saveSearchText(this);',
+             'row_events:saveSearchText(this);',
              'field:partner_nazev',
              'field_ref_val:ident',
              'callbackFce:setPageAfterSearchCallback()']);
@@ -29,7 +29,7 @@ function saveSearchText(obj){
           '&aparameters=akod_r:web_search_text_save_json&aparameters=spouzetelo:1&aparameters=code:'+tmp,
           function(data){
               //$.mobile.changePage('web_redir_backend?ap=akod_r:CRM_KONTAKTY_PDA_PAGE2&ap=apartner:'+tmp);
-              window.location.href='http://sun.notia.cz/nbs/web_redir_backend?ap=akod_r:CRM_KONTAKTY_PDA_PAGE2&ap=apartner:'+tmp;
+              goToPageWithParams('web_redir_backend', 'ap=akod_r:CRM_KONTAKTY_PDA_PAGE2&ap=apartner:'+tmp);
           });
 }
 
@@ -50,13 +50,14 @@ function emailEnter(event, obj){
 // INICIALIZACE CONTROLLERU 
 
 $(document).live('pageinit', function(event){
-  regCtrl('aemail',1,['onkeypress:emailEnter(event, this)']);
-  regCtrl('acollapsiblelist',
-          2,
-          ['ds:web_last_search_json',
-           'ds_par:&aparameters=code:PDA_SEARCH',
-           'row_onclick:saveSearchText(this)',
-           'field_ref_val:ident',
-           'field:partner_nazev']);
-  initDocs();
+    initPage();
+    regCtrl('aemail',1,['onkeypress:emailEnter(event, this)']);
+    regCtrl('acollapsiblelist',
+            2,
+            ['ds:web_last_search_json',
+             'ds_par:&aparameters=code:PDA_SEARCH',
+             'row_events:[onclick:saveSearchText(this)]',
+             'field_ref_val:ident',
+             'field:partner_nazev']);
+    initDocs();
 });
