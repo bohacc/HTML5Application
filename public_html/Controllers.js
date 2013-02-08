@@ -110,6 +110,8 @@ function initPage(){
 
 var callsStack = [];
 
+var pictures = ["PDA_EMAIL","PDA_MOBIL","PDA_TELEFON","PDA_OSOBA","PDA_ADRESA","PDA_WWW"];
+
 function clearCallsStack(){
     callsStack = [];
 }
@@ -146,75 +148,105 @@ function getParams(){
     return "";
 };
 
-function setValue(id, v, type, row_events, ref_val, nested_fields){
-    if(type === 1){
-        $('#'+id).val(v);
-    }
-    if(type === 2){
-        var arow_events = "";
-        var aref_val_hidden = "";
-        var ref_val_id = "";
-        if(ref_val !== null){
-            aref_val_hidden = '<input type="hidden" value="'+ref_val+'">';
-            ref_val_id = "id_"+ref_val;
+function getPictures(data_type){
+    return pictures[data_type];
+}
+
+function setRowEvents(row_events, ref_val_id){
+    var arow_events = "";
+    if(row_events != null){
+        var arow_events = eval(row_events);
+        for(var i=0;i<arow_events.length;i++){
+            var vals = arow_events[i].split(':');
+            var _p = vals[0].substr(4);
+            var _v = decodeURIComponent(vals[1]);
+            $('#'+ref_val_id).attr(_p, _v);
         }
-        $('#'+id).append('<li id="'+ref_val_id+'">'+
+    }
+}
+
+function refreshListview(id){
+    if ($(id).hasClass('ui-listview')) {
+        $(id).listview('refresh');
+    }else {
+        $(id).trigger('create');
+    } 
+}
+
+function setValue(id, v, type, row_events, ref_val, nested_fields){  
+    var aref_val_hidden = "";
+    var aref_val_id = "";
+    if(ref_val !== null){
+        aref_val_hidden = '<input id="ref_id_'+ref_val+'" type="hidden" value="'+decodeURIComponent(ref_val)+'">';
+        aref_val_id = decodeURIComponent(ref_val);
+    }    
+    //-- INPUT TEXT
+    if(type === 1){
+        $('#'+id).val(decodeURIComponent(v));
+    }
+    //-- LISTVIEW
+    if(type === 2){         
+        $('#'+id).append('<li id="'+aref_val_id+'">'+
                          '  <a href="javascript:void(0);">'+
                          '    <h3 class="ui-li-heading">'+v+'</h3>'+
                          '  </a>'+
                          aref_val_hidden+
                          '</li>'); 
-        if(row_events != null){
-            for(var i=0;i<row_events.length;i++){
-                var vals = row_events.split(':');
-                var p = vals[0];
-                var v = vals[1];
-                $('#'+ref_val_id).attr(p, v);
-            }
-        }
-        $('#'+id).listview('refresh');
+        setRowEvents(row_events, aref_val_id);
+        refreshListview('#'+id);   
     }
+    //-- LABEL
     if(type === 3){
-        $('#'+id).html(v);
+        $('#'+id).html(decodeURIComponent(v));
     }
-    if(type === 4){ // ve vystavbe!
+    //-- COLLAPSIBLE LIST
+    if(type === 4){ 
         var str = "";
-        var r_header = v.header;
         var r_rows = v.rows;
         var r_rownum = v.rownum;
         var j = 0;
-        str += '<ul data-role="listview">';
-        for(var i=0;r_rows.length;i++){
+        var rnd = (""+Math.random()).replace(/\./g,"");
+        aref_val_hidden = "";
+        aref_val_id = "";
+        str = '<ul data-role="listview" id="id_'+rnd+'">';
+        for(var i=0;i<r_rows.length;i++){
             var row = r_rows[i];
             var fields = [];
             var content_row = "";
-            if(nested_fields != null){
+            if(nested_fields !== null){
                 fields = nested_fields.split(";");
             }
-            if(fields.length > 0){
+            if(fields.length > 0 && row !== undefined){
                 for(var j=0;j<fields.length;j++){
-                    var tmp = row[fields[j]];
-                    content_row += '<div>'+tmp+'</div>';
+                    var tmp = decodeURIComponent(row[fields[j]]);
+                    var data_type = row[fields[j]+"_data_type"];
+                    if(tmp !== ""){
+                        //setRowEvents(row_events, ref_val_id);//!!!!!!
+                        if(data_type !== null){
+                            content_row += '<img src="'+getPictures(data_type)+'" alt="'+tmp+'">';
+                        }
+                        content_row += '<span>'+tmp+'</span>';                        
+                    }
+                }
+                if(content_row !== ""){
+                    str += '<li>'+
+                           '  <a href="javascript:void(0);">'+
+                           content_row+
+                           '  </a>'+
+                           aref_val_hidden+
+                           '</li>';                
                 }
             }
-            /*if(r_header == 0){
-                str += "";
-            }*/
-            str += '<li>'+
-                   '  <a href="javascript:void(0);" onclick="'+arow_events+'">'+
-                   content_row+
-                   '  </a>'+
-                   aref_val_hidden+
-                   '</li>';
         }
         str += '</ul>';
-        $('#cl_kontakty h3').each(function(){
+        j = 0;
+        $('#'+id+' h3').each(function(){
             j++;
             if(r_rownum == j){
-                $(this).after(str);
+                $(this).next().html(str);
             } 
         });
-        $('ul').listview('refresh');
+        refreshListview('#'+id);  
     }
 }
 
@@ -255,7 +287,9 @@ function setAttribute(id, metadata, type, multi){
         if(p === "nested_fields"){
             anested_fields = v;
         }
-        $('#'+id).attr(p, v);
+        if(p.substr(0,4) === "set_"){
+            $('#'+id).attr(p.substr(4), v);
+        }
     }
     if(ds !== null){
         addToCalls(id, 
@@ -297,7 +331,7 @@ function initDocs(){
                     if(afield_ref_val !== null){
                         v_ref = decodeURIComponent(data_fmt[afield_ref_val]);
                     }
-                    setValue(aid, v, atype, arow_onclick, v_ref);
+                    setValue(aid, v, atype, null, v_ref);
                     break;
                 case 2: 
                     for (var i=0;i<data_fmt.length;i++){
@@ -313,7 +347,6 @@ function initDocs(){
                 case 3:
                     for (var i=0;i<data_fmt.length;i++){
                         var tmp = data_fmt[i];
-                        //var v = decodeURIComponent(tmp[afield]);
                         var v_ref = "";
                         if(afield_ref_val !== null){
                             v_ref = decodeURIComponent(tmp[afield_ref_val]);
@@ -342,7 +375,7 @@ function LabelCtrl(id, metadata){
 }
 
 function CollapsibleListCtrl(id, metadata){
-    setAttribute(id, metadata, 4, 2);
+    setAttribute(id, metadata, 4, 3);
 }
 
 // --------------------------------------------------------------------------

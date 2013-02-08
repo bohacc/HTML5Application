@@ -16,15 +16,15 @@ function printResult(obj){
             2,
             ['ds:web_search_adresar_pda_json',
              'ds_par:&aparameters=code:'+$(obj).val(),
-             'row_events:saveSearchText(this);',
+             'row_events:["set_onclick:saveSearchText(this)"]',
              'field:partner_nazev',
-             'field_ref_val:ident',
+             'field_ref_val:ident2',
              'callbackFce:setPageAfterSearchCallback()']);
     initDocs();
 };
 
 function saveSearchText(obj){
-    var tmp = $(obj).next().val(); 
+    var tmp = $('#ref_id_'+$(obj).attr('id')).val(); 
     nAjax('web_redir',
           '&aparameters=akod_r:web_search_text_save_json&aparameters=spouzetelo:1&aparameters=code:'+tmp,
           function(data){
@@ -51,12 +51,12 @@ function emailEnter(event, obj){
 
 $(document).live('pageinit', function(event){
     initPage();
-    regCtrl('aemail',1,['onkeypress:emailEnter(event, this)']);
+    regCtrl('aemail',1,['set_onkeypress:emailEnter(event, this)']);
     regCtrl('acollapsiblelist',
             2,
             ['ds:web_last_search_json',
              'ds_par:&aparameters=code:PDA_SEARCH',
-             'row_events:[onclick:saveSearchText(this)]',
+             'row_events:["set_onclick:saveSearchText(this)"]',
              'field_ref_val:ident',
              'field:partner_nazev']);
     initDocs();
