@@ -213,6 +213,7 @@ function setValue(id, v, type, row_events, ref_val, nested_fields){
             var row = r_rows[i];
             var fields = [];
             var content_row = "";
+            var adata_type_row = "";
             if(nested_fields !== null){
                 fields = nested_fields.split(";");
             }
@@ -220,15 +221,18 @@ function setValue(id, v, type, row_events, ref_val, nested_fields){
                 for(var j=0;j<fields.length;j++){
                     var tmp = decodeURIComponent(row[fields[j]]);
                     var data_type = row[fields[j]+"_data_type"];
+                    if(data_type != undefined){
+                        adata_type_row = data_type;
+                    }
                     if(tmp !== ""){
                         //setRowEvents(row_events, ref_val_id);//!!!!!!
-                        if(data_type !== null){
-                            content_row += '<img src="'+getPictures(data_type)+'" alt="'+tmp+'">';
-                        }
-                        content_row += '<span>'+tmp+'</span>';                        
+                        content_row += '<div>'+tmp+'</div>';                        
                     }
                 }
                 if(content_row !== ""){
+                    if(adata_type_row != ""){
+                        content_row = '<div style="float: left; vertical-align: middle"><img src="web_get_img_data?aparameters=akod_obrazku:'+getPictures(adata_type_row)+'"></div><div style="float: left">'+content_row+'</div><div class="cleaner">&nbsp;</div>';
+                    }
                     str += '<li>'+
                            '  <a href="javascript:void(0);">'+
                            content_row+
