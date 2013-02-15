@@ -91,17 +91,33 @@ function home(){
     goToPage("CRM_KONTAKTY_PDA_PAGE1");
 }
     
-function setPageHead(){
-     $('#bt_home').attr("onclick","home()");
+function setPageHead(page){
+    // page.type 1 - seznam, 2 - zaznam, 3 - zaznam pro editaci
+    var caption = "CRM Kontakty";
+    var head = '  <div data-role="header">'+
+               '      <h1>'+caption+'</h1><a href="#" id="bt_home">Domů</a>'+
+               '  </div>';
+    $('div[data-role="content"]').before(head);
+    if(page.type === 2){
+        $('h1').html(caption + " - záznam");
+        $('h1').after('<a href="#" id="header_edit">Upravit</a>');
+        $('#header_edit').removeClass('ui-btn-left').addClass('ui-btn-right');
+    }    
+    if(page.type === 3){
+        $('h1').html(caption + " - záznam/editace");
+        $('h1').after('<a id="header_edit">Uložit</a>');
+        $('#header_post').removeClass('ui-btn-left').addClass('ui-btn-right');
+    }
+    $('#bt_home').attr("onclick","home()");
 };
 
-function setPageFoot(){
+function setPageFoot(page){
      
 };
 
-function initPage(){
-    setPageHead();
-    setPageFoot();
+function initPage(page){
+    setPageHead(page);
+    setPageFoot(page);
 }
     
     
@@ -127,6 +143,10 @@ function CallStack(aid, ads, afield, atype, amulti, aparams, acallbackFce, arow_
     this._row_events = arow_events;
     this._field_ref_val = afield_ref_val;
     this._nested_fields = anested_fields;
+}
+
+function Page(atype){
+    this.type = atype;
 }
 
 function regCtrl(id, id_ctrl, metadata){

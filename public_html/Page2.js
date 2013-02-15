@@ -1,7 +1,8 @@
 // INICIALIZACE CONTROLLERU 
 
 $(document).live('pageinit', function(event){
-    initPage();
+    page = new Page(2);
+    initPage(page);
     
     regCtrl('cl_kontakty',
             4,
