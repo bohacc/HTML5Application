@@ -1,3 +1,8 @@
+/*  Unit with controllers and global functions
+ *  Author: Martin Boháč
+ *  Company: Notia
+ */
+
       function nEncodeUri( str ) {
         var tmp_str = str.replace(/&aparameters=/g, '(!)').replace(/&aParameters=/g, '(!)');
         //tmp_str = tmp_str.replace(/\?aparameters=/g, '(*!)').replace(/\?aParameters=/g, '(*!)');
@@ -66,6 +71,12 @@ function getParam(name) {
 function goToPageWithParams(call, params){
     var str = "";
     var tmp = params.replace(/ap=/g,'');
+    /*if(params !== null){
+        var p = params.split('&');
+        for(var i=0;i<p.length;i++){
+            $('form[name="form_page"]').append('<input type="hidden" name="ap" value="'+p[i]+'">');
+        }
+    }*/    
     while(tmp.indexOf('&') > 0){
         var val = tmp.substr(0, tmp.indexOf('&'));
         str += '  <input type="hidden" name="ap" value="'+val+'">';
@@ -95,34 +106,50 @@ function setPageHead(page){
     // page.type 1 - seznam, 2 - zaznam, 3 - zaznam pro editaci
     var caption = "CRM Kontakty";
     var head = '  <div data-role="header">'+
-               '      <h1>'+caption+'</h1><a href="#" id="bt_home">Domů</a>'+
+               '      <h1>'+caption+'</h1>'+
                '  </div>';
     $('div[data-role="content"]').before(head);
+    
+    // button HOME
+    $('div[data-role="header"] h1').before('<a href="#" id="bt_home">Domů</a>');
+    $('#bt_home').attr("onclick","home()");
+    
+    // header content by page type
     if(page.type === 2){
-        $('h1').html(caption + " - záznam");
-        $('h1').after('<a href="#" id="header_edit">Upravit</a>');
-        $('#header_edit').removeClass('ui-btn-left').addClass('ui-btn-right');
+        $('h1').html(caption + " - záznam").trigger('create');
+        $('h1').after('<a href="#" id="header_edit" onclick="editRecord();">Upravit</a>').trigger('create');
+        //$('#header_edit').removeClass('ui-btn-left').addClass('ui-btn-right').trigger('create');
     }    
     if(page.type === 3){
         $('h1').html(caption + " - záznam/editace");
         $('h1').after('<a id="header_edit">Uložit</a>');
         $('#header_post').removeClass('ui-btn-left').addClass('ui-btn-right');
     }
-    $('#bt_home').attr("onclick","home()");
 };
 
 function setPageFoot(page){
-     
+    var foot = '<div data-role="footer">Powered by Notia Business Server</div>';
+    $('div[data-role="content"]').after(foot);
+         
 };
 
 function initPage(page){
     setPageHead(page);
     setPageFoot(page);
+    // recreate page with new content
+    $('div[data-role="page"]').trigger('pagecreate');
+}
+
+function editRecord(){
+    var id = $('.ref_id').val();
+    var params = "akod_r:CRM_KONTAKTY_PDA_PAGE3&aid:"+id;
+    goToPageWithParams("web_redir_backend", params);
 }
     
     
     
-// CONTROLLER - MODEL MVC --------------------------------------------------------------
+// CONTROLLER - MODEL MVC -----------------------------------------------------
+// ----------------------------------------------------------------------------
 
 var callsStack = [];
 
@@ -196,13 +223,16 @@ function refreshListview(id){
 function setValue(id, v, type, row_events, ref_val, nested_fields){  
     var aref_val_hidden = "";
     var aref_val_id = "";
-    if(ref_val !== null){
-        aref_val_hidden = '<input id="ref_id_'+ref_val+'" type="hidden" value="'+decodeURIComponent(ref_val)+'">';
+    if(ref_val != null && ref_val != undefined && ref_val != ""){
+        aref_val_hidden = '<input class="ref_id" id="ref_id_'+ref_val+'" type="hidden" value="'+decodeURIComponent(ref_val)+'">';
         aref_val_id = decodeURIComponent(ref_val);
     }    
     //-- INPUT TEXT
     if(type === 1){
         $('#'+id).val(decodeURIComponent(v));
+        if(aref_val_hidden !== ""){
+            $('div[data-role="content"]').append(aref_val_hidden);
+        }
     }
     //-- LISTVIEW
     if(type === 2){         
@@ -218,6 +248,9 @@ function setValue(id, v, type, row_events, ref_val, nested_fields){
     //-- LABEL
     if(type === 3){
         $('#'+id).html(decodeURIComponent(v));
+        if(aref_val_hidden !== ""){
+            $('div[data-role="content"]').append(aref_val_hidden);
+        }        
     }
     //-- COLLAPSIBLE LIST
     if(type === 4){ 

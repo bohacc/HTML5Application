@@ -1,3 +1,8 @@
+/* Unit for init page 1
+ * Author: Martin Boháč
+ * Company: Notia
+ */
+
 // FUNKCE PRO FORMULAR -------
 
 function setPageAfterSearch(){
