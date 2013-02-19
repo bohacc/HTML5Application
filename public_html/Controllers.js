@@ -111,18 +111,19 @@ function setPageHead(page){
     $('div[data-role="content"]').before(head);
     
     // button HOME
-    $('div[data-role="header"] h1').before('<a href="#" id="bt_home">Domů</a>');
+    $('div[data-role="header"] h1').before('<a href="#" data-icon="home" id="bt_home">Domů</a>');
     $('#bt_home').attr("onclick","home()");
     
     // header content by page type
     if(page.type === 2){
         $('h1').html(caption + " - záznam").trigger('create');
-        $('h1').after('<a href="#" id="header_edit" onclick="editRecord();">Upravit</a>').trigger('create');
+        $('h1').after('<a href="#" id="header_edit" data-icon="gear" onclick="editRecord();">Upravit</a>').trigger('create');
         //$('#header_edit').removeClass('ui-btn-left').addClass('ui-btn-right').trigger('create');
     }    
     if(page.type === 3){
-        $('h1').html(caption + " - záznam/editace");
-        $('h1').after('<a id="header_edit">Uložit</a>');
+        $('h1').html(caption + " - záznam / editace");
+        $('h1').after('<a id="header_edit" data-icon="delete" onclick="javascript:self.history.back();">Zpět</a>');
+        $('h1').after('<a id="header_edit" data-icon="check">Uložit</a>');
         $('#header_post').removeClass('ui-btn-left').addClass('ui-btn-right');
     }
 };

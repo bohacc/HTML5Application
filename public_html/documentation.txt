@@ -1,0 +1,15 @@
+/* Dokumentace
+*  Author: Martin Boháč
+*  Company: Notia
+*/
+
+regCtrl[id komponenty; typ komponenty; metadata]
+
+metadata: 
+- do metadat lze vkládat libovolné javascriptové příkazy vet tvaru parametr:hodnota
+- ds = datový zdroj / JSON služba
+- ds_par = parametry k datovému zdroji
+- field = pole v datovém zdroji
+- field_ref_val = referenční pole pro označení záznamu apod.
+- save = definiční řetězec pro uložení dat z např. formuláře ve tvaru nazev_pole:tabulka:identifikator_zaznamu
+- row_events = metadata pro řádek výpisu
