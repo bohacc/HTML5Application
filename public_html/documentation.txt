@@ -35,3 +35,4 @@ metadata:
 - field_ref_val = referenční pole pro označení záznamu apod.
 - save = definiční řetězec pro uložení dat z např. formuláře ve tvaru nazev_pole_tabulky:tabulka:identifikator_zaznamu
 - row_events = metadata pro řádek výpisu
+- save = definuje údaje pro CRUD ve tvaru menene_pole:tabulka:identifikator_where:hodnota_identifikatoru_where
