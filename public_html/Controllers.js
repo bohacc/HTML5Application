@@ -105,38 +105,43 @@ function home(){
 function setPageHead(page){
     // page.type 1 - seznam, 2 - zaznam, 3 - zaznam pro editaci
     var caption = "CRM Kontakty";
-    var head = '  <div data-role="header">'+
-               '      <h1>'+caption+'</h1>'+
-               '  </div>';
+    var head = '    <div data-role="header">'+
+               '        <h1 class="ui-title">'+caption+'</h1>'+
+               '        <a id="header_toolbar" class="ui-btn-right" onclick="showNavbar();">...</a>'+
+               '    </div>'+
+               '    <div data-role="navbar" class="hide">'+
+               '        <ul>'+
+               '            <li><a href="#" data-icon="home" id="bt_home">Domů</a></li>'+
+               '        </ul>'+
+               '    </div>';
     $('div[data-role="content"]').before(head);
     
     // button HOME
-    $('div[data-role="header"] h1').before('<a href="#" data-icon="home" id="bt_home">Domů</a>');
     $('#bt_home').attr("onclick","home()");
     
     // header content by page type
-    if(page.type === 2){
+    if(page._type === 2){
         $('h1').html(caption + " - záznam").trigger('create');
-        $('h1').after('<a href="#" id="header_edit" data-icon="gear" onclick="editRecord();">Upravit</a>').trigger('create');
-        //$('#header_edit').removeClass('ui-btn-left').addClass('ui-btn-right').trigger('create');
+        $('div[data-role="navbar"] ul').append('<li><a href="#" id="header_edit" data-icon="gear" onclick="editRecord();">Upravit</a></li>').trigger('create');
     }    
-    if(page.type === 3){
+    if(page._type === 3){
         $('h1').html(caption + " - záznam / editace");
-        $('h1').after('<a id="header_edit" data-icon="delete" onclick="javascript:self.history.back();">Zpět</a>');
-        $('h1').after('<a id="header_edit" data-icon="check">Uložit</a>');
-        $('#header_post').removeClass('ui-btn-left').addClass('ui-btn-right');
+        
+        $('div[data-role="navbar"] ul').append('<li><a id="header_edit" data-icon="delete" onclick="javascript:self.history.back();">Zpět</a></li>').trigger('create');
+        $('div[data-role="navbar"] ul').append('<li><a id="header_edit" data-icon="check" onclick="initSave();">Uložit</a></li>').trigger('create');
+        //$('#header_post').removeClass('ui-btn-left').addClass('ui-btn-right');
     }
 };
 
 function setPageFoot(page){
     var foot = '<div data-role="footer">Powered by Notia Business Server</div>';
     $('div[data-role="content"]').after(foot);
-         
 };
 
-function initPage(page){
-    setPageHead(page);
-    setPageFoot(page);
+function initPage(p){
+    page = p;
+    setPageHead(p);
+    setPageFoot(p);
     // recreate page with new content
     $('div[data-role="page"]').trigger('pagecreate');
 }
@@ -146,6 +151,11 @@ function editRecord(){
     var params = "akod_r:CRM_KONTAKTY_PDA_PAGE3&aid:"+id;
     goToPageWithParams("web_redir_backend", params);
 }
+
+function showNavbar(){
+    $('div[data-role="navbar"]').show("slow").delay(10000).slideUp();
+}
+    
     
     
     
@@ -153,6 +163,8 @@ function editRecord(){
 // ----------------------------------------------------------------------------
 
 var callsStack = [];
+var callsStackSave = [];
+var page = null;
 
 var pictures = ["PDA_EMAIL","PDA_MOBIL","PDA_TELEFON","PDA_OSOBA","PDA_ADRESA","PDA_WWW"];
 
@@ -160,7 +172,8 @@ function clearCallsStack(){
     callsStack = [];
 }
 
-function CallStack(aid, ads, afield, atype, amulti, aparams, acallbackFce, arow_events, afield_ref_val, anested_fields){
+function CallStack(aid, ads, afield, atype, amulti, aparams, acallbackFce, 
+                   arow_events, afield_ref_val, anested_fields, asave){
     this._id = aid;
     this._ds = ads;
     this._field = afield;
@@ -171,10 +184,22 @@ function CallStack(aid, ads, afield, atype, amulti, aparams, acallbackFce, arow_
     this._row_events = arow_events;
     this._field_ref_val = afield_ref_val;
     this._nested_fields = anested_fields;
+    this._save = asave;
+    this._data = null;
+    this._page_ref_val = null;
+}
+
+function CallStackSave(aid, afield, atable, afield_ref, aref_val){
+    this._id = aid;
+    this._field = afield;
+    this._table = atable;
+    this._field_ref = afield_ref;
+    this._field_ref_val = aref_val;
 }
 
 function Page(atype){
-    this.type = atype;
+    this._type = atype;
+    this._state = 0; // 0 - default,1 - new
 }
 
 function regCtrl(id, id_ctrl, metadata){
@@ -188,9 +213,9 @@ function delmtr(){
     return ":";
 }
 
-function addToCalls(aid, ads, afield, atype, amulti, aparams, acallbackFce, arow_events, afield_ref_val, anested_fields){
+/*function addToCalls(aid, ads, afield, atype, amulti, aparams, acallbackFce, arow_events, afield_ref_val, anested_fields){
     callsStack.push(new CallStack(aid, ads, afield, atype, amulti, aparams, acallbackFce, arow_events, afield_ref_val, anested_fields));
-}
+}*/
 
 function getParams(){
     return "";
@@ -221,7 +246,7 @@ function refreshListview(id){
     } 
 }
 
-function setValue(id, v, type, row_events, ref_val, nested_fields){  
+function setValue(v, ref_val, cs){  
     var aref_val_hidden = "";
     var aref_val_id = "";
     if(ref_val != null && ref_val != undefined && ref_val != ""){
@@ -229,32 +254,32 @@ function setValue(id, v, type, row_events, ref_val, nested_fields){
         aref_val_id = decodeURIComponent(ref_val);
     }    
     //-- INPUT TEXT
-    if(type === 1){
-        $('#'+id).val(decodeURIComponent(v));
+    if(cs._type === 1){
+        $('#'+cs._id).val(decodeURIComponent(v));
         if(aref_val_hidden !== ""){
             $('div[data-role="content"]').append(aref_val_hidden);
         }
     }
     //-- LISTVIEW
-    if(type === 2){         
-        $('#'+id).append('<li id="'+aref_val_id+'">'+
+    if(cs._type === 2){         
+        $('#'+cs._id).append('<li id="'+aref_val_id+'">'+
                          '  <a href="javascript:void(0);">'+
                          '    <h3 class="ui-li-heading">'+v+'</h3>'+
                          '  </a>'+
                          aref_val_hidden+
                          '</li>'); 
-        setRowEvents(row_events, aref_val_id);
-        refreshListview('#'+id);   
+        setRowEvents(cs._row_events, aref_val_id);
+        refreshListview('#'+cs._id);   
     }
     //-- LABEL
-    if(type === 3){
-        $('#'+id).html(decodeURIComponent(v));
+    if(cs._type === 3){
+        $('#'+cs._id).html(decodeURIComponent(v));
         if(aref_val_hidden !== ""){
             $('div[data-role="content"]').append(aref_val_hidden);
         }        
     }
     //-- COLLAPSIBLE LIST
-    if(type === 4){ 
+    if(cs._type === 4){ 
         var str = "";
         var r_rows = v.rows;
         var r_rownum = v.rownum;
@@ -268,8 +293,8 @@ function setValue(id, v, type, row_events, ref_val, nested_fields){
             var fields = [];
             var content_row = "";
             var adata_type_row = "";
-            if(nested_fields !== null){
-                fields = nested_fields.split(";");
+            if(cs._nested_fields !== null){
+                fields = cs._nested_fields.split(";");
             }
             if(fields.length > 0 && row !== undefined){
                 for(var j=0;j<fields.length;j++){
@@ -298,69 +323,92 @@ function setValue(id, v, type, row_events, ref_val, nested_fields){
         }
         str += '</ul>';
         j = 0;
-        $('#'+id+' h3').each(function(){
+        $('#'+cs._id+' h3').each(function(){
             j++;
             if(r_rownum == j){
                 $(this).next().html(str);
             } 
         });
-        refreshListview('#'+id);  
+        refreshListview('#'+cs._id);  
     }
 }
 
 function setAttribute(id, metadata, type, multi){
     var del = delmtr();
-    var field = null;
     var p = null;
     var v = null;
-    var ds = null;
-    var tmp = null; 
-    var params = null; 
-    var acallbackFce = null;
-    var arow_events = null;
-    var afield_ref_val = null;
-    var anested_fields = null;
+    var tmp = null;
+    var cs = new CallStack(id, null, null, type, multi);
     for(var i = 0; i < metadata.length; i++){
         tmp = metadata[i];
         p = tmp.substring(0, tmp.indexOf(del));
         v = tmp.substr(tmp.indexOf(del)+1);
-        if(p === "ds"){
-            ds = v;
+        switch(p)
+        {
+            case "ds": 
+                cs._ds = v;
+                break;
+            case "field": 
+                cs._field = v;
+                break;
+            case "ds_par": 
+                cs._params = v;
+                break;
+            case "callbackFce": 
+                cs._callbackFce = v;
+                break;
+            case "row_events": 
+                cs._row_events = v;
+                break;
+            case "field_ref_val": 
+                cs._field_ref_val = v;
+                break;
+            case "nested_fields": 
+                cs._nested_fields = v;
+                break;
+            case "save": 
+                cs._save = v;
+                break;
         }
-        if(p === "field"){
-            field = v;
-        }
-        if(p === "ds_par"){
-            params = v;
-        }
-        if(p === "callbackFce"){
-            acallbackFce = v;
-        }
-        if(p === "row_events"){
-            arow_events = v;
-        }
-        if(p === "field_ref_val"){
-            afield_ref_val = v;
-        }
-        if(p === "nested_fields"){
-            anested_fields = v;
-        }
+        // set javascript actions to object
         if(p.substr(0,4) === "set_"){
             $('#'+id).attr(p.substr(4), v);
         }
     }
-    if(ds !== null){
-        addToCalls(id, 
-                   ds, 
-                   field, 
-                   type, 
-                   multi, 
-                   params, 
-                   acallbackFce, 
-                   arow_events, 
-                   afield_ref_val, 
-                   anested_fields);
+    if(cs._ds !== null){
+        callsStack.push(cs);
     }    
+}
+
+function regSaveEvent(cs){
+    if(cs._save !== undefined ){
+        var save = cs._save.split(";");
+        var afield = save[0];
+        var atable = save[1];
+        var afield_ref = save[2];
+        var afield_ref_for_val = save[3];
+        var aref_val = cs._data[afield_ref_for_val];
+        var css = new CallStackSave(cs._id, afield, atable, afield_ref, aref_val);
+        callsStackSave.push(css);
+    }
+}
+
+function initSave(){
+    var arr = callsStackSave;
+    for(var i=0;i<arr.length;i++){
+        var tmp = arr[i];
+        var val = $('#'+tmp._id).val();
+        var proc = page._state === 1 ? 'web_mvc_insert' : 'web_mvc_update';
+        var params = '&aparameters=spouzetelo:1'+
+                     '&aparameters=afield:'+tmp._field+
+                     '&aparameters=afield_val:'+val+
+                     '&aparameters=atable:'+tmp._table+
+                     '&aparameters=afield_ref:'+tmp._field_ref+
+                     '&aparameters=afield_ref_val:'+tmp._field_ref_val;
+        nAjax('web_redir','&aparameters=akod_r:'+proc+'&aparameters=spouzetelo:1'+params, function(data){
+            
+        });
+    }
 }
 
 function initDocs(){
@@ -375,12 +423,8 @@ function initDocs(){
         var fce = tmp._callbackFce;
         nAjax('web_redir','&aparameters=akod_r:'+acall+'&aparameters=spouzetelo:1'+params, function(data, tmpc, fce){
             var afield = tmpc._field;
-            var aid = tmpc._id;
-            var atype = tmpc._type;
-            var amulti = tmpc._multi;
-            var arow_events = tmpc._row_events;
+            var amulti = tmpc._multi;            
             var afield_ref_val = tmpc._field_ref_val;
-            var anested_fields = tmpc._nested_fields;
             var data_fmt = $.parseJSON(data);
             switch(amulti){
                 case 1: 
@@ -389,7 +433,10 @@ function initDocs(){
                     if(afield_ref_val !== null){
                         v_ref = decodeURIComponent(data_fmt[afield_ref_val]);
                     }
-                    setValue(aid, v, atype, null, v_ref);
+                    tmpc._data = data_fmt;
+                    tmpc._page_ref_val = v_ref;
+                    regSaveEvent(tmpc);
+                    setValue(v, v_ref, tmpc);
                     break;
                 case 2: 
                     for (var i=0;i<data_fmt.length;i++){
@@ -399,7 +446,7 @@ function initDocs(){
                         if(afield_ref_val !== null){
                             v_ref = decodeURIComponent(tmp[afield_ref_val]);
                         }
-                        setValue(aid, v, atype, arow_events, v_ref);
+                        setValue(v, v_ref, tmpc);
                     }
                     break;
                 case 3:
@@ -409,7 +456,7 @@ function initDocs(){
                         if(afield_ref_val !== null){
                             v_ref = decodeURIComponent(tmp[afield_ref_val]);
                         }
-                        setValue(aid, tmp, atype, arow_events, v_ref, anested_fields);
+                        setValue(tmp, v_ref, tmpc);
                     }
                     break;
             }

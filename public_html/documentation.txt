@@ -3,13 +3,35 @@
 *  Company: Notia
 */
 
-regCtrl[id komponenty; typ komponenty; metadata]
+- Každá komponenta má svůj controller
+- Založí se definice pro komponentu, kde se určí identifikátor a vlastnosti společně s datovým zdrojen
+- Controller poté nastaví zadané vlastnosti komponentě a zaregistruje volání datového modelu (AJAX - DB - JSON)
+- Po příkazu initDocs() se projdou zaregistrovaná volání a v callbacku se provede naplnění komponenty daty
+- Pokud se vyskytuje více registrací stejného datového modelu, provede se pouze jedno volání tohoto modelu (!je třeba dodělat!)
+- Hlavička a patička stránky má svojí inicializační část a doplní se do šablony při inicializaci dokumentu.
+- Hlavička mění obsah na základě typu stránky
 
+- Controllery + hlavní funkce jsou v samostatné šabloně
+- Inicializační scripty + registrace komponent + funkce pro konkrétní stránku jsou v samostatné šabloně
+- HTML kód pro stránku je v samostatné šabloně
+- CSS kód pro stránku je v samostatné šabloně
+- Tyto výše uvedené šablony se spojují pomocí tabulky WEB_MVC_VAZBY pod jedním společným kódem.
+  Controller musí být s typem 9 a nahraje se automaticky do každé stránky.
+  Inicializace controlleru musí být s typem 10(pořadí 2).
+  CSS kód musí být s typem 8
+- volání stránek pak vypadá takto: web_redir_backend?ap=akod_r:CRM_KONTAKTY_PDA_PAGE3
+- pro volání stránek je možné použít fce: goToPage(page), goToPageWithParams(call, params)
+
+
+*** Registrace komponenty:
+regCtrl[id_komponenty; typ_komponenty; metadata]
+
+*** popis parametru metadata
 metadata: 
-- do metadat lze vkládat libovolné javascriptové příkazy vet tvaru parametr:hodnota
+- do metadat lze vkládat libovolné javascriptové příkazy vet tvaru: set_ + parametr:hodnota
 - ds = datový zdroj / JSON služba
 - ds_par = parametry k datovému zdroji
 - field = pole v datovém zdroji
 - field_ref_val = referenční pole pro označení záznamu apod.
-- save = definiční řetězec pro uložení dat z např. formuláře ve tvaru nazev_pole:tabulka:identifikator_zaznamu
+- save = definiční řetězec pro uložení dat z např. formuláře ve tvaru nazev_pole_tabulky:tabulka:identifikator_zaznamu
 - row_events = metadata pro řádek výpisu
