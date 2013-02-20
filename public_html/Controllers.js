@@ -153,7 +153,7 @@ function editRecord(){
 }
 
 function showNavbar(){
-    $('div[data-role="navbar"]').show("slow").delay(10000).slideUp();
+    $('div[data-role="navbar"]').show("slow",function(){$('#header_toolbar').hide();}).delay(10000).fadeOut("slow",function(){$('#header_toolbar').show();});
 }
     
     
