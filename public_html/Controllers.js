@@ -106,7 +106,7 @@ function setPageHead(page){
     // page.type 1 - seznam, 2 - zaznam, 3 - zaznam pro editaci
     var caption = "CRM Kontakty";
     var head = '    <div data-role="header">'+
-               '        <h1 class="ui-title">'+caption+'</h1>'+
+               '        <h1 class="ui-title" id="header">'+caption+'</h1>'+
                '        <a id="header_toolbar" class="ui-btn-right" onclick="showNavbar();">...</a>'+
                '    </div>'+
                '    <div data-role="navbar" class="hide">'+
@@ -166,7 +166,7 @@ var callsStack = [];
 var callsStackSave = [];
 var page = null;
 
-var pictures = ["PDA_EMAIL","PDA_MOBIL","PDA_TELEFON","PDA_OSOBA","PDA_ADRESA","PDA_WWW"];
+var pictures = ["PDA_EMAIL","PDA_MOBIL","PDA_TELEFON","PDA_OSOBA","PDA_ADRESA","PDA_WWW","PDA_SKYPE","PDA_TWITTER"];
 
 function clearCallsStack(){
     callsStack = [];
