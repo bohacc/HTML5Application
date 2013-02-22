@@ -17,7 +17,7 @@ function setPageAfterSearchCallback(){
 function printResult(obj){
     // INICIALIZACE CONTROLLERU
     
-    regCtrl('acollapsiblelist',
+    regCtrl('#acollapsiblelist',
             2,
             ['ds:web_search_adresar_pda_json',
              'ds_par:&aparameters=code:'+$(obj).val(),
@@ -57,8 +57,8 @@ function emailEnter(event, obj){
 $(document).live('pageinit', function(event){
     page = new Page(1);
     initPage(page);
-    regCtrl('aemail',1,['set_onkeypress:emailEnter(event, this)']);
-    regCtrl('acollapsiblelist',
+    regCtrl('#aemail',1,['set_onkeypress:emailEnter(event, this)']);
+    regCtrl('#acollapsiblelist',
             2,
             ['ds:web_last_search_json',
              'ds_par:&aparameters=code:PDA_SEARCH',

@@ -166,14 +166,16 @@ var callsStack = [];
 var callsStackSave = [];
 var page = null;
 
-var pictures = ["PDA_EMAIL","PDA_MOBIL","PDA_TELEFON","PDA_OSOBA","PDA_ADRESA","PDA_WWW","PDA_SKYPE","PDA_TWITTER"];
+var pictures = ["PDA_EMAIL","PDA_MOBIL","PDA_TELEFON","PDA_OSOBA","PDA_ADRESA","PDA_WWW","PDA_SKYPE","PDA_TWITTER"]; // poradi dle typu
+var titles = ["email","mobil","telefon","osoba","adresa","www","skype","twitter"]; // poradi dle typu
 
 function clearCallsStack(){
     callsStack = [];
 }
 
 function CallStack(aid, ads, afield, atype, amulti, aparams, acallbackFce, 
-                   arow_events, afield_ref_val, anested_fields, asave){
+                   arow_events, afield_ref_val, anested_fields, asave,
+                   alistview_footer){
     this._id = aid;
     this._ds = ads;
     this._field = afield;
@@ -187,6 +189,7 @@ function CallStack(aid, ads, afield, atype, amulti, aparams, acallbackFce,
     this._save = asave;
     this._data = null;
     this._page_ref_val = null;
+    this._listview_footer = alistview_footer;
 }
 
 function CallStackSave(aid, afield, atable, afield_ref, aref_val){
@@ -221,8 +224,12 @@ function getParams(){
     return "";
 };
 
-function getPictures(data_type){
+function getPicture(data_type){
     return pictures[data_type];
+}
+
+function getTitle(data_type){
+    return titles[data_type];
 }
 
 function setRowEvents(row_events, ref_val_id){
@@ -249,31 +256,31 @@ function refreshListview(id){
 function setValue(v, ref_val, cs){  
     var aref_val_hidden = "";
     var aref_val_id = "";
-    if(ref_val != null && ref_val != undefined && ref_val != ""){
+    if(ref_val !== null && ref_val !== undefined && ref_val !== ""){
         aref_val_hidden = '<input class="ref_id" id="ref_id_'+ref_val+'" type="hidden" value="'+decodeURIComponent(ref_val)+'">';
         aref_val_id = decodeURIComponent(ref_val);
     }    
     //-- INPUT TEXT
     if(cs._type === 1){
-        $('#'+cs._id).val(decodeURIComponent(v));
+        $(cs._id).val(decodeURIComponent(v));
         if(aref_val_hidden !== ""){
             $('div[data-role="content"]').append(aref_val_hidden);
         }
     }
     //-- LISTVIEW
     if(cs._type === 2){         
-        $('#'+cs._id).append('<li id="'+aref_val_id+'">'+
+        $(cs._id).append('<li id="'+aref_val_id+'">'+
                          '  <a href="javascript:void(0);">'+
                          '    <h3 class="ui-li-heading">'+v+'</h3>'+
                          '  </a>'+
                          aref_val_hidden+
                          '</li>'); 
         setRowEvents(cs._row_events, aref_val_id);
-        refreshListview('#'+cs._id);   
+        refreshListview(cs._id);   
     }
     //-- LABEL
     if(cs._type === 3){
-        $('#'+cs._id).html(decodeURIComponent(v));
+        $(cs._id).html(decodeURIComponent(v));
         if(aref_val_hidden !== ""){
             $('div[data-role="content"]').append(aref_val_hidden);
         }        
@@ -310,9 +317,9 @@ function setValue(v, ref_val, cs){
                 }
                 if(content_row !== ""){
                     if(adata_type_row != ""){
-                        content_row = '<div style="float: left; vertical-align: middle"><img src="web_get_img_data?aparameters=akod_obrazku:'+getPictures(adata_type_row)+'"></div><div style="float: left">'+content_row+'</div><div class="cleaner">&nbsp;</div>';
+                        content_row = '<div style="float: left; vertical-align: middle"><img src="web_get_img_data?aparameters=akod_obrazku:'+getPicture(adata_type_row)+'"></div><div style="float: left">'+content_row+'</div><div class="cleaner">&nbsp;</div>';
                     }
-                    str += '<li>'+
+                    str += '<li data-icon="false">'+
                            '  <a href="javascript:void(0);">'+
                            content_row+
                            '  </a>'+
@@ -323,13 +330,14 @@ function setValue(v, ref_val, cs){
         }
         str += '</ul>';
         j = 0;
-        $('#'+cs._id+' h3').each(function(){
+        $(cs._id+' h3').each(function(){
             j++;
             if(r_rownum == j){
                 $(this).next().html(str);
+                return false;
             } 
         });
-        refreshListview('#'+cs._id);  
+        refreshListview(cs._id);  
     }
 }
 
@@ -369,10 +377,13 @@ function setAttribute(id, metadata, type, multi){
             case "save": 
                 cs._save = v;
                 break;
+            case "listview_footer":
+                cs._listview_footer = v;
+                break;
         }
         // set javascript actions to object
         if(p.substr(0,4) === "set_"){
-            $('#'+id).attr(p.substr(4), v);
+            $(id).attr(p.substr(4), v);
         }
     }
     if(cs._ds !== null){
@@ -397,7 +408,7 @@ function initSave(){
     var arr = callsStackSave;
     for(var i=0;i<arr.length;i++){
         var tmp = arr[i];
-        var val = $('#'+tmp._id).val();
+        var val = $(tmp._id).val();
         var proc = page._state === 1 ? 'web_mvc_insert' : 'web_mvc_update';
         var params = '&aparameters=spouzetelo:1'+
                      '&aparameters=afield:'+tmp._field+
@@ -425,6 +436,8 @@ function initDocs(){
             var afield = tmpc._field;
             var amulti = tmpc._multi;            
             var afield_ref_val = tmpc._field_ref_val;
+            var aid = tmpc._id;
+            var alistview_footer = tmpc._listview_footer;
             var data_fmt = $.parseJSON(data);
             switch(amulti){
                 case 1: 
@@ -457,6 +470,9 @@ function initDocs(){
                             v_ref = decodeURIComponent(tmp[afield_ref_val]);
                         }
                         setValue(tmp, v_ref, tmpc);
+                    }
+                    if(alistview_footer !== undefined){
+                        eval(tmpc._listview_footer+'(aid, data_fmt, tmpc)');
                     }
                     break;
             }
