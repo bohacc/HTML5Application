@@ -169,6 +169,79 @@ var page = null;
 var pictures = ["PDA_EMAIL","PDA_MOBIL","PDA_TELEFON","PDA_OSOBA","PDA_ADRESA","PDA_WWW","PDA_SKYPE","PDA_TWITTER"]; // poradi dle typu
 var titles = ["email","mobil","telefon","osoba","adresa","www","skype","twitter"]; // poradi dle typu
 
+function saveRow(){
+    alert('Save');
+}
+
+function cancelSaveRow(id, data_type){
+    $(id).parent().prev().show();
+    $(id).parent().remove();
+}
+
+function getEditRowCL(data_type){
+    var str = "";
+    var dt = parseInt(data_type);
+    //alert(data_type);
+    switch(dt)
+    {
+        case 0:
+            str = '<div>'+
+                  '    <input type=\\\'text\\\' data-inline=\\\'true\\\' \\\/>'+
+                  '&nbsp;'+
+                  '    <a href=\\\'#\\\' data-inline=\\\'true\\\' data-role=\\\'button\\\' data-icon=\\\'check\\\' onclick=\\\'saveRow(this,'+data_type+');\\\'>Uložit<\\\/a>'+
+                  '    <a href=\\\'#\\\' data-inline=\\\'true\\\' data-role=\\\'button\\\' data-icon=\\\'delete\\\' onclick=\\\'cancelSaveRow(this,'+data_type+');\\\'>Zrušit<\\\/a>'+
+                  '</div>';
+            break;
+            str = '<div>'+
+                  '    <input type=\\\'text\\\' data-inline=\\\'true\\\' \\\/>'+
+                  '&nbsp;'+
+                  '    <a href=\\\'#\\\' data-inline=\\\'true\\\' data-role=\\\'button\\\' data-icon=\\\'check\\\' onclick=\\\'saveRow(this,'+data_type+');\\\'>Uložit<\\\/a>'+
+                  '    <a href=\\\'#\\\' data-inline=\\\'true\\\' data-role=\\\'button\\\' data-icon=\\\'delete\\\' onclick=\\\'cancelSaveRow(this,'+data_type+');\\\'>Zrušit<\\\/a>'+
+                  '</div>';
+            break;
+        case 2:
+            str = '<div>'+
+                  '    <input type=\\\'text\\\' data-inline=\\\'true\\\' \\\/>'+
+                  '&nbsp;'+
+                  '    <a href=\\\'#\\\' data-inline=\\\'true\\\' data-role=\\\'button\\\' data-icon=\\\'check\\\' onclick=\\\'saveRow(this,'+data_type+');\\\'>Uložit<\\\/a>'+
+                  '    <a href=\\\'#\\\' data-inline=\\\'true\\\' data-role=\\\'button\\\' data-icon=\\\'delete\\\' onclick=\\\'cancelSaveRow(this,'+data_type+');\\\'>Zrušit<\\\/a>'+
+                  '</div>';
+            break;
+        case 5:
+            str = '<div>'+
+                  '    <input type=\\\'text\\\' data-inline=\\\'true\\\' \\\/>'+
+                  '&nbsp;'+
+                  '    <a href=\\\'#\\\' data-inline=\\\'true\\\' data-role=\\\'button\\\' data-icon=\\\'check\\\' onclick=\\\'saveRow(this,'+data_type+');\\\'>Uložit<\\\/a>'+
+                  '    <a href=\\\'#\\\' data-inline=\\\'true\\\' data-role=\\\'button\\\' data-icon=\\\'delete\\\' onclick=\\\'cancelSaveRow(this,'+data_type+');\\\'>Zrušit<\\\/a>'+
+                  '</div>';
+            break;
+        case 6:
+            str = '<div>'+
+                  '    <input type=\\\'text\\\' data-inline=\\\'true\\\' \\\/>'+
+                  '&nbsp;'+
+                  '    <a href=\\\'#\\\' data-inline=\\\'true\\\' data-role=\\\'button\\\' data-icon=\\\'check\\\' onclick=\\\'saveRow(this,'+data_type+');\\\'>Uložit<\\\/a>'+
+                  '    <a href=\\\'#\\\' data-inline=\\\'true\\\' data-role=\\\'button\\\' data-icon=\\\'delete\\\' onclick=\\\'cancelSaveRow(this,'+data_type+');\\\'>Zrušit<\\\/a>'+
+                  '</div>';
+            break;
+        case 7:
+            str = '<div>'+
+                  '    <input type=\\\'text\\\' data-inline=\\\'true\\\' \\\/>'+
+                  '&nbsp;'+
+                  '    <a href=\\\'#\\\' data-inline=\\\'true\\\' data-role=\\\'button\\\' data-icon=\\\'check\\\' onclick=\\\'saveRow(this,'+data_type+');\\\'>Uložit<\\\/a>'+
+                  '    <a href=\\\'#\\\' data-inline=\\\'true\\\' data-role=\\\'button\\\' data-icon=\\\'delete\\\' onclick=\\\'cancelSaveRow(this,'+data_type+');\\\'>Zrušit<\\\/a>'+
+                  '</div>';
+            break;
+    }
+    //alert(str);
+    return str;
+}
+
+function getObjectCL(data_type){
+    this.picture = pictures[data_type];
+    this.title = titles[data_type];
+    this.editRow = getEditRowCL(data_type);
+}
+
 function clearCallsStack(){
     callsStack = [];
 }
@@ -307,7 +380,7 @@ function setValue(v, ref_val, cs){
                 for(var j=0;j<fields.length;j++){
                     var tmp = decodeURIComponent(row[fields[j]]);
                     var data_type = row[fields[j]+"_data_type"];
-                    if(data_type != undefined){
+                    if(data_type !== undefined){
                         adata_type_row = data_type;
                     }
                     if(tmp !== ""){
@@ -316,7 +389,7 @@ function setValue(v, ref_val, cs){
                     }
                 }
                 if(content_row !== ""){
-                    if(adata_type_row != ""){
+                    if(adata_type_row !== ""){
                         content_row = '<div style="float: left; vertical-align: middle"><img src="web_get_img_data?aparameters=akod_obrazku:'+getPicture(adata_type_row)+'"></div><div style="float: left">'+content_row+'</div><div class="cleaner">&nbsp;</div>';
                     }
                     str += '<li data-icon="false">'+
@@ -497,6 +570,91 @@ function LabelCtrl(id, metadata){
 
 function CollapsibleListCtrl(id, metadata){
     setAttribute(id, metadata, 4, 3);
+}
+
+
+
+function getButtonCLAddRow(data_type, id, data, cs){
+    var obj = new getObjectCL(data_type);
+    var img = obj.picture;
+    var title = obj.title;
+    var ins_content = obj.editRow;
+    //ins_content = '<input type=\\\'text\\\'>';
+    var content = '<a href="#" data-inline="true" data-role="button" onclick="$(this).parent().find(\'a\').hide().after(\''+ins_content+'\').next().trigger(\'create\');">'+
+                  '    <img src="web_get_img_data?aparameters=akod_obrazku:'+img+'" alt="'+title+'">'+
+                  title+
+                  '</a>';
+    return content;
+}
+
+function setListviewFooterDataInsert(id, data, cs){
+    var content = "";
+    if(data !== undefined){
+        for(var i=0;i<data.length;i++){
+            var arows = data[i].rows;
+            var v1 = 0;
+            var v2 = 0;
+            var v3 = 0;
+            var d1 = "";
+            var d2 = "";
+            var d3 = "";
+            var p = 0;
+            var current_obj = null;
+            $('div[data-role="collapsible"]').each(function(){
+                if(i === p){
+                    current_obj = this;
+                    return false;
+                }
+                p += 1;
+            }); 
+            for(var j=0;j<arows.length;j++){
+                var row = arows[j];
+                var fields = [];
+                if(cs._nested_fields !== null){
+                    fields = cs._nested_fields.split(";");
+                }
+                var afield = fields[0];
+                var afield_val = row[afield];
+                var adata_type = row[afield+"_data_type"];
+                if(adata_type === "1" || adata_type === "2"){
+                    //alert(afield);
+                    if(afield_val !== ""){
+                        v1++;
+                        d1 = adata_type;
+                    };
+                }
+                if(adata_type === "4"){
+                    if(afield_val !== ""){
+                        v2++;
+                        d2 = adata_type;
+                    };
+                }
+                if(adata_type === "0" || adata_type === "6" || adata_type === "7"){
+                    if(afield_val !== ""){
+                        v3++;
+                        d3 = adata_type;
+                    }
+                }
+            }
+           //alert(v1+'*'+v2+'*'+v3+'---'+i);
+            if((v1 < 2) && (i === 0)){
+                content += getButtonCLAddRow(d1, id, data, cs);
+            }
+            if((v2 < 2) && (i === 1)){
+                content += getButtonCLAddRow(d2, id, data, cs);
+            }
+            if((v3 < 2) && (i === 2)){
+                content += getButtonCLAddRow(d3, id, data, cs);
+            }
+            if(content !== ""){
+                //alert('x');
+                content = "<p>"+content+"</p>";
+                $(current_obj).find('ul').append('<li data-icon="false">'+content+'</li>').trigger('create').listview("refresh");
+                content = "";
+            }
+            
+        }
+    }
 }
 
 // --------------------------------------------------------------------------
