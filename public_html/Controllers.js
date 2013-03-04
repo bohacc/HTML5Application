@@ -169,10 +169,6 @@ var page = null;
 var pictures = ["PDA_EMAIL","PDA_MOBIL","PDA_TELEFON","PDA_OSOBA","PDA_ADRESA","PDA_WWW","PDA_SKYPE","PDA_TWITTER"]; // poradi dle typu
 var titles = ["email","mobil","telefon","osoba","adresa","www","skype","twitter"]; // poradi dle typu
 
-function saveRow(){
-    alert('Save');
-}
-
 function cancelSaveRow(id, data_type){
     $(id).parent().prev().show();
     $(id).parent().remove();
@@ -207,6 +203,14 @@ function getEditRowCL(data_type){
                   '    <a href=\\\'#\\\' data-inline=\\\'true\\\' data-role=\\\'button\\\' data-icon=\\\'delete\\\' onclick=\\\'cancelSaveRow(this,'+data_type+');\\\'>Zrušit<\\\/a>'+
                   '</div>';
             break;
+        case 4:
+            str = '<div>'+
+                  '    <input type=\\\'text\\\' data-inline=\\\'true\\\' \\\/>'+
+                  '&nbsp;'+
+                  '    <a href=\\\'#\\\' data-inline=\\\'true\\\' data-role=\\\'button\\\' data-icon=\\\'check\\\' onclick=\\\'saveRow(this,'+data_type+');\\\'>Uložit<\\\/a>'+
+                  '    <a href=\\\'#\\\' data-inline=\\\'true\\\' data-role=\\\'button\\\' data-icon=\\\'delete\\\' onclick=\\\'cancelSaveRow(this,'+data_type+');\\\'>Zrušit<\\\/a>'+
+                  '</div>';
+            break;        
         case 5:
             str = '<div>'+
                   '    <input type=\\\'text\\\' data-inline=\\\'true\\\' \\\/>'+
@@ -248,7 +252,7 @@ function clearCallsStack(){
 
 function CallStack(aid, ads, afield, atype, amulti, aparams, acallbackFce, 
                    arow_events, afield_ref_val, anested_fields, asave,
-                   alistview_footer){
+                   alistview_footer, alistview_header){
     this._id = aid;
     this._ds = ads;
     this._field = afield;
@@ -263,6 +267,7 @@ function CallStack(aid, ads, afield, atype, amulti, aparams, acallbackFce,
     this._data = null;
     this._page_ref_val = null;
     this._listview_footer = alistview_footer;
+    this._listview_header = alistview_header;
 }
 
 function CallStackSave(aid, afield, atable, afield_ref, aref_val){
@@ -407,6 +412,8 @@ function setValue(v, ref_val, cs){
             j++;
             if(r_rownum == j){
                 $(this).next().html(str);
+                var tool_bar = '<a href="#" class="ui-btn-right">...</a>';
+                $(this).append(tool_bar).trigger('create');
                 return false;
             } 
         });
@@ -453,6 +460,9 @@ function setAttribute(id, metadata, type, multi){
             case "listview_footer":
                 cs._listview_footer = v;
                 break;
+            case "listview_header":
+                cs._listview_header = v;
+                break;            
         }
         // set javascript actions to object
         if(p.substr(0,4) === "set_"){
@@ -511,6 +521,7 @@ function initDocs(){
             var afield_ref_val = tmpc._field_ref_val;
             var aid = tmpc._id;
             var alistview_footer = tmpc._listview_footer;
+            var alistview_header = tmpc._listview_header;
             var data_fmt = $.parseJSON(data);
             switch(amulti){
                 case 1: 
@@ -547,6 +558,9 @@ function initDocs(){
                     if(alistview_footer !== undefined){
                         eval(tmpc._listview_footer+'(aid, data_fmt, tmpc)');
                     }
+                    if(alistview_header !== undefined){
+                        eval(tmpc._listview_header+'(aid, data_fmt, tmpc)');
+                    }                    
                     break;
             }
             if(fce !== null){
@@ -586,6 +600,79 @@ function getButtonCLAddRow(data_type, id, data, cs){
                   '</a>';
     return content;
 }
+
+function setListviewHeaderDataInsert(id, data, cs){
+    var content = "";
+    if(data !== undefined){
+        for(var i=0;i<data.length;i++){
+            var arows = data[i].rows;
+            var v1 = 0;
+            var v2 = 0;
+            var v3 = 0;
+            var d1 = "";
+            var d2 = "";
+            var d3 = "";
+            var p = 0;
+            var current_obj = null;
+            $('div[data-role="collapsible"]').each(function(){
+                if(i === p){
+                    current_obj = this;
+                    return false;
+                }
+                p += 1;
+            }); 
+            for(var j=0;j<arows.length;j++){
+                var row = arows[j];
+                var fields = [];
+                if(cs._nested_fields !== null){
+                    fields = cs._nested_fields.split(";");
+                }
+                var afield = fields[0];
+                var afield_val = row[afield];
+                var adata_type = row[afield+"_data_type"];
+                if(adata_type === "1" || adata_type === "2"){
+                    //alert(afield);
+                    if(afield_val !== ""){
+                        v1++;
+                        d1 = adata_type;
+                    };
+                }
+                if(adata_type === "4"){
+                    if(afield_val !== ""){
+                        v2++;
+                        d2 = adata_type;
+                    };
+                }
+                if(adata_type === "0" || adata_type === "6" || adata_type === "7"){
+                    if(afield_val !== ""){
+                        v3++;
+                        d3 = adata_type;
+                    }
+                }
+            }
+           //alert(v1+'*'+v2+'*'+v3+'---'+i);
+            if((v1 < 2) && (i === 0)){
+                content += getButtonCLAddRow(d1, id, data, cs);
+            }
+            if((v2 < 2) && (i === 1)){
+                content += getButtonCLAddRow(d2, id, data, cs);
+            }
+            if((v3 < 2) && (i === 2)){
+                content += getButtonCLAddRow(d3, id, data, cs);
+            }
+            //if(content !== ""){
+                //alert('x');
+                //content = "<p>"+content+"</p>";
+                content = '<div><a href="#" data-role="button">Uložit</a><a href="#" data-role="button">Zrušit</a></div>';
+                $(current_obj).find('ul').prepend('<li data-icon="false" class="header_bar">'+content+'</li>').trigger('create').listview("refresh");
+                $('.header_bar').hide();
+                content = "";
+            //}
+            
+        }
+    }
+}
+
 
 function setListviewFooterDataInsert(id, data, cs){
     var content = "";
