@@ -14,6 +14,49 @@ function saveRow(obj, data_type){
     });
 }
 
+function editItemRows(obj){
+    $(obj).parent().parent().parent().find('.row_data_item').each(function(){
+        $(this).find('div').hide();
+        
+        // pro jistotu, kdyby tam neco zustalo
+        $(this).find('input[type="text"]').remove();
+        
+        var input_text = '<input type="text" name="ap" value="' + $(this).find('div').html()+'" />';
+        $(this).append(input_text).trigger('create');
+    });
+}
+
+function getParamsItemRows(obj){
+    var str = "";
+    var field = "";
+    $(obj).parent().parent().parent().find('input[type="text"]').each(function(){
+        field = $(this).parent().find('input[type="hidden"]').val();
+        if(field.length > 0){
+            str += "&aparameters=" + field + ":" + $(this).val();
+        }
+    });
+    return str;
+}
+
+function saveItemRows(obj){
+    var fix_params = "&aparameters=akod_r:web_adresar_pda_ins_json&aparameters=spouzetelo:1";
+    nAjax('web_redir', fix_params+getParamsItemRows(obj), function(data){
+        try{
+            var data_fmt = $.parseJSON(data);
+            var errors = parseInt(decodeURIComponent(data_fmt.errors));
+            if(errors === 0){
+                $(obj).parent().parent().parent().find('.row_data_item').find('div').show();
+                $(obj).parent().parent().parent().find('.row_data_item').find('input[type="text"]').remove();
+            }
+            
+        }catch(e){
+            alert('Při ukládání došlo k chybě');
+            $(obj).parent().parent().parent().find('.row_data_item').find('div').show();
+            $(obj).parent().parent().parent().find('.row_data_item').find('input[type="text"]').remove();            
+        }
+    });
+}
+
 // INICIALIZACE CONTROLLERU 
 
 $(document).live('pageinit', function(event){
@@ -25,7 +68,7 @@ $(document).live('pageinit', function(event){
             ['ds:web_adresar_zaz_pda_json',
              'ds_par:&aparameters=code:'+getParam('apartner'),
              'field_ref_val:ident',
-             'listview_header:setListviewHeaderDataInsert',
+             'listview_footer:setListviewFooterDataInsert',
              'nested_fields:pole1;pole2;pole3;pole4;pole5;pole6;pole7;pole8;pole9;pole10']);    
     
     regCtrl('#header', 3, ['ds:web_adresar_zaz2_pda_json', 'ds_par:&aparameters=code:'+getParam('apartner'), 'field:ident_nazev', 'field_ref_val:ident']);

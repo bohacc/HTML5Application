@@ -385,17 +385,29 @@ function setValue(v, ref_val, cs){
                 for(var j=0;j<fields.length;j++){
                     var tmp = decodeURIComponent(row[fields[j]]);
                     var data_type = row[fields[j]+"_data_type"];
+                    var db_field = row[fields[j]+"_field"];
+                    var class_hide = "";
                     if(data_type !== undefined){
                         adata_type_row = data_type;
                     }
-                    if(tmp !== ""){
+                    if(tmp !== "" || data_type !== undefined){
                         //setRowEvents(row_events, ref_val_id);//!!!!!!
-                        content_row += '<div>'+tmp+'</div>';                        
+                        if(tmp === ""){
+                            class_hide = "hidex";
+                        }
+                        content_row += '<div class="row_data_item '+class_hide+'">'+
+                                       '    <div>'+tmp+'</div>'+
+                                       '    <input type="hidden" name="ap" value="'+db_field+'" />'+
+                                       '</div>';
                     }
                 }
                 if(content_row !== ""){
                     if(adata_type_row !== ""){
-                        content_row = '<div style="float: left; vertical-align: middle"><img src="web_get_img_data?aparameters=akod_obrazku:'+getPicture(adata_type_row)+'"></div><div style="float: left">'+content_row+'</div><div class="cleaner">&nbsp;</div>';
+                        content_row = '<div style="float: left; vertical-align: middle">'+
+                                      '    <img src="web_get_img_data?aparameters=akod_obrazku:'+getPicture(adata_type_row)+'" />'+
+                                      '</div>'+
+                                      '<div style="float: left" class="row_data">'+content_row+'</div>'+
+                                      '<div class="cleaner">&nbsp;</div>';
                     }
                     str += '<li data-icon="false">'+
                            '  <a href="javascript:void(0);">'+
@@ -412,11 +424,14 @@ function setValue(v, ref_val, cs){
             j++;
             if(r_rownum == j){
                 $(this).next().html(str);
-                var tool_bar = '<a href="#" class="ui-btn-right">...</a>';
-                $(this).append(tool_bar).trigger('create');
+                //var tool_bar = '<a href="#" class="ui-btn-right">...</a>';
+                //$(this).append(tool_bar).trigger('create');
                 return false;
             } 
         });
+        //-- schovají se prázdné řádky, ktere tu jsou pouze pro editaci
+        $(cs._id).find('.hidex').closest('li').hide();
+        //-- recreate lisview
         refreshListview(cs._id);  
     }
 }
@@ -694,53 +709,39 @@ function setListviewFooterDataInsert(id, data, cs){
                 }
                 p += 1;
             }); 
-            for(var j=0;j<arows.length;j++){
-                var row = arows[j];
-                var fields = [];
-                if(cs._nested_fields !== null){
-                    fields = cs._nested_fields.split(";");
-                }
-                var afield = fields[0];
-                var afield_val = row[afield];
-                var adata_type = row[afield+"_data_type"];
-                if(adata_type === "1" || adata_type === "2"){
-                    //alert(afield);
-                    if(afield_val !== ""){
-                        v1++;
-                        d1 = adata_type;
-                    };
-                }
-                if(adata_type === "4"){
-                    if(afield_val !== ""){
-                        v2++;
-                        d2 = adata_type;
-                    };
-                }
-                if(adata_type === "0" || adata_type === "6" || adata_type === "7"){
-                    if(afield_val !== ""){
-                        v3++;
-                        d3 = adata_type;
-                    }
-                }
-            }
-           //alert(v1+'*'+v2+'*'+v3+'---'+i);
-            if((v1 < 2) && (i === 0)){
-                content += getButtonCLAddRow(d1, id, data, cs);
-            }
-            if((v2 < 2) && (i === 1)){
-                content += getButtonCLAddRow(d2, id, data, cs);
-            }
-            if((v3 < 2) && (i === 2)){
-                content += getButtonCLAddRow(d3, id, data, cs);
-            }
-            if(content !== ""){
-                //alert('x');
-                content = "<p>"+content+"</p>";
-                $(current_obj).find('ul').append('<li data-icon="false">'+content+'</li>').trigger('create').listview("refresh");
-                content = "";
-            }
+            content = '<div>'+
+                      '    <a href="#" data-icon="gear" data-role="button" class="bt_edit" onclick="editItemRows(this);changeButtonsCLToolbar(this);">Upravit</a>'+
+                      '</div>';
+            $(current_obj).find('ul').append('<li data-icon="false">'+content+'</li>').trigger('create').listview("refresh");
             
         }
+    }
+}
+
+function changeButtonsCLToolbar(obj){  
+    if($(obj).hasClass("bt_edit")){
+        $(obj).hide();
+        if($(obj).parent().find('.bt_save')){
+            var str = '    <a href="#" data-icon="check" data-role="button" class="bt_save" onclick="saveItemRows(this);changeButtonsCLToolbar(this);">Uložit</a>'+
+                      '    <a href="#" data-icon="delete" data-role="button" class="bt_cancel" onclick="changeButtonsCLToolbar(this);">Zrušit</a>';        
+            $(obj).parent().append(str).trigger('create');  
+        }else{
+            $(obj).parent().find('.bt_save').show();
+            $(obj).parent().find('.bt_cancel').show();            
+        }
+        $(obj).parent().parent().parent().find('.hidex').closest('li').show();
+    }else{
+        $(obj).parent().find('.bt_save').hide();
+        $(obj).parent().find('.bt_cancel').hide();
+        $(obj).parent().find('.bt_edit').show();
+        if($(obj).hasClass("bt_save")){
+            //--
+        }
+        if($(obj).hasClass("bt_cancel")){
+            $(obj).parent().parent().parent().find('.row_data_item').find('div').show();
+            $(obj).parent().parent().parent().find('.row_data_item').find('input[type="text"]').remove();
+        }
+        $(obj).parent().parent().parent().find('.hidex').closest('li').hide();
     }
 }
 
