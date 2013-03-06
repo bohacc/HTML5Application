@@ -21,8 +21,12 @@ function editItemRows(obj){
         // pro jistotu, kdyby tam neco zustalo
         $(this).find('input[type="text"]').remove();
         
-        var input_text = '<input type="text" name="ap" value="' + $(this).find('div').html()+'" />';
+        var input_text = '<input type="text" name="ap" value="' + $(this).find('div').html()+'" onkeypress="onInputChange(this)" />'+
+                         '<a href="#" class="inputDelete" onclick="$(this).parent().find(\'input[type=text]\').val(\'\')"><img src="web_get_img_data?aparameters=akod_obrazku:'+getImg(1)+'" alt="smazat" /></a>';
         $(this).append(input_text).trigger('create');
+        //$(this).find('input[type="text"]').trigger('create');
+        //refreshListview($(obj).closest('ul').attr('id'));
+        //$(obj).closest('ul').listview('refresh');
     });
 }
 
@@ -35,6 +39,7 @@ function getParamsItemRows(obj){
             str += "&aparameters=" + field + ":" + $(this).val();
         }
     });
+    str += '&aparameters=aid:'+$('.ref_id').val();
     return str;
 }
 

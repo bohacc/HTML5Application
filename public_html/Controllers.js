@@ -156,6 +156,11 @@ function showNavbar(){
     $('div[data-role="navbar"]').show("slow",function(){$('#header_toolbar').hide();}).delay(10000).fadeOut("slow",function(){$('#header_toolbar').show();});
 }
     
+function onInputChange(obj){
+    if(!$(obj).hasClass('onEdit')){
+        $(obj).addClass('onEdit');
+    }
+}
     
     
     
@@ -168,6 +173,7 @@ var page = null;
 
 var pictures = ["PDA_EMAIL","PDA_MOBIL","PDA_TELEFON","PDA_OSOBA","PDA_ADRESA","PDA_WWW","PDA_SKYPE","PDA_TWITTER"]; // poradi dle typu
 var titles = ["email","mobil","telefon","osoba","adresa","www","skype","twitter"]; // poradi dle typu
+var images = ["ODEBRAT","PDA_EMAIL"];
 
 function cancelSaveRow(id, data_type){
     $(id).parent().prev().show();
@@ -306,6 +312,10 @@ function getPicture(data_type){
     return pictures[data_type];
 }
 
+function getImg(index){
+    return images[index];
+}
+
 function getTitle(data_type){
     return titles[data_type];
 }
@@ -334,7 +344,7 @@ function refreshListview(id){
 function setValue(v, ref_val, cs){  
     var aref_val_hidden = "";
     var aref_val_id = "";
-    if(ref_val !== null && ref_val !== undefined && ref_val !== ""){
+    if(ref_val !== null && ref_val != undefined && ref_val !== "" && ref_val != 'undefined'){
         aref_val_hidden = '<input class="ref_id" id="ref_id_'+ref_val+'" type="hidden" value="'+decodeURIComponent(ref_val)+'">';
         aref_val_id = decodeURIComponent(ref_val);
     }    
@@ -409,10 +419,12 @@ function setValue(v, ref_val, cs){
                                       '<div style="float: left" class="row_data">'+content_row+'</div>'+
                                       '<div class="cleaner">&nbsp;</div>';
                     }
-                    str += '<li data-icon="false">'+
+                    str += '<li data-icon="false" data-role="fieldcontain">'+
                            '  <a href="javascript:void(0);">'+
+                           //'    <div>'+
                            content_row+
                            '  </a>'+
+                           //'    </div>'+
                            aref_val_hidden+
                            '</li>';                
                 }
@@ -422,7 +434,7 @@ function setValue(v, ref_val, cs){
         j = 0;
         $(cs._id+' h3').each(function(){
             j++;
-            if(r_rownum == j){
+            if(parseInt(r_rownum) === j){
                 $(this).next().html(str);
                 //var tool_bar = '<a href="#" class="ui-btn-right">...</a>';
                 //$(this).append(tool_bar).trigger('create');
@@ -742,6 +754,8 @@ function changeButtonsCLToolbar(obj){
             $(obj).parent().parent().parent().find('.row_data_item').find('input[type="text"]').remove();
         }
         $(obj).parent().parent().parent().find('.hidex').closest('li').hide();
+        $(obj).find('.onEdit').removeClass('onEdit');
+        $(obj).parent().parent().parent().find('.inputDelete').remove();
     }
 }
 
