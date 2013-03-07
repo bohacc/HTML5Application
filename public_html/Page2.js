@@ -16,12 +16,12 @@ function saveRow(obj, data_type){
 
 function editItemRows(obj){
     $(obj).parent().parent().parent().find('.row_data_item').each(function(){
-        $(this).find('div').hide();
+        $(this).find('.data_value').hide();
         
         // pro jistotu, kdyby tam neco zustalo
         $(this).find('input[type="text"]').remove();
         
-        var input_text = '<input type="text" name="ap" value="' + $(this).find('div').html()+'" onkeypress="onInputChange(this)" />'+
+        var input_text = '<input type="text" name="ap" value="' + $(this).find('.data_value').text()+'" onkeypress="onInputChange(this)" />'+
                          '<a href="#" class="inputDelete" onclick="$(this).parent().find(\'input[type=text]\').val(\'\')"><img src="web_get_img_data?aparameters=akod_obrazku:'+getImg(1)+'" alt="smazat" /></a>';
         $(this).append(input_text).trigger('create');
         //$(this).find('input[type="text"]').trigger('create');
@@ -50,13 +50,13 @@ function saveItemRows(obj){
             var data_fmt = $.parseJSON(data);
             var errors = parseInt(decodeURIComponent(data_fmt.errors));
             if(errors === 0){
-                $(obj).parent().parent().parent().find('.row_data_item').find('div').show();
+                $(obj).parent().parent().parent().find('.row_data_item').find('.data_value').show();
                 $(obj).parent().parent().parent().find('.row_data_item').find('input[type="text"]').remove();
             }
             
         }catch(e){
             alert('Při ukládání došlo k chybě');
-            $(obj).parent().parent().parent().find('.row_data_item').find('div').show();
+            $(obj).parent().parent().parent().find('.row_data_item').find('.data_value').show();
             $(obj).parent().parent().parent().find('.row_data_item').find('input[type="text"]').remove();            
         }
     });

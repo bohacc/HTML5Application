@@ -406,20 +406,21 @@ function setValue(v, ref_val, cs){
                             class_hide = "hidex";
                         }
                         content_row += '<div class="row_data_item '+class_hide+'">'+
-                                       '    <div>'+tmp+'</div>'+
+                                       '    <div class="data_value">'+tmp+'</div>'+
                                        '    <input type="hidden" name="ap" value="'+db_field+'" />'+
                                        '</div>';
                     }
                 }
                 if(content_row !== ""){
                     if(adata_type_row !== ""){
-                        content_row = '<div style="float: left; vertical-align: middle">'+
-                                      '    <img src="web_get_img_data?aparameters=akod_obrazku:'+getPicture(adata_type_row)+'" />'+
+                        content_row = '<div style="float: left;">'+ // style="float: left; vertical-align: middle"
+                                      '    <img src="web_get_img_data?aparameters=akod_obrazku:'+getPicture(adata_type_row)+'" />'+ 
                                       '</div>'+
-                                      '<div style="float: left" class="row_data">'+content_row+'</div>'+
+                                      //'<a href="#" data-role="button" data-icon="telefon" data-iconpos="notext">&nbsp;</a>'+
+                                      '<div class="row_data" style="float: left">'+content_row+'</div>'+ //data-inline="true" style="float: left"
                                       '<div class="cleaner">&nbsp;</div>';
                     }
-                    str += '<li data-icon="false" data-role="fieldcontain">'+
+                    str += '<li data-icon="false" data-role="fieldcontain">'+ 
                            '  <a href="javascript:void(0);">'+
                            //'    <div>'+
                            content_row+
@@ -734,8 +735,8 @@ function changeButtonsCLToolbar(obj){
     if($(obj).hasClass("bt_edit")){
         $(obj).hide();
         if($(obj).parent().find('.bt_save')){
-            var str = '    <a href="#" data-icon="check" data-role="button" class="bt_save" onclick="saveItemRows(this);changeButtonsCLToolbar(this);">Uložit</a>'+
-                      '    <a href="#" data-icon="delete" data-role="button" class="bt_cancel" onclick="changeButtonsCLToolbar(this);">Zrušit</a>';        
+            var str = '    <a href="#" data-icon="check" data-inline="true" data-role="button" class="bt_save" onclick="saveItemRows(this);changeButtonsCLToolbar(this);">Uložit</a>'+
+                      '    <a href="#" data-icon="delete" data-inline="true" data-role="button" class="bt_cancel" onclick="changeButtonsCLToolbar(this);">Zrušit</a>';        
             $(obj).parent().append(str).trigger('create');  
         }else{
             $(obj).parent().find('.bt_save').show();
@@ -747,10 +748,12 @@ function changeButtonsCLToolbar(obj){
         $(obj).parent().find('.bt_cancel').hide();
         $(obj).parent().find('.bt_edit').show();
         if($(obj).hasClass("bt_save")){
-            //--
+            $(obj).parent().parent().parent().find('.row_data_item').each(function(){
+                $(this).find('.data_value').text($(this).find('input[type=text]').val());
+            }); 
         }
         if($(obj).hasClass("bt_cancel")){
-            $(obj).parent().parent().parent().find('.row_data_item').find('div').show();
+            $(obj).parent().parent().parent().find('.row_data_item').find('.data_value').show();
             $(obj).parent().parent().parent().find('.row_data_item').find('input[type="text"]').remove();
         }
         $(obj).parent().parent().parent().find('.hidex').closest('li').hide();
