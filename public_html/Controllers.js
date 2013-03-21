@@ -194,6 +194,7 @@ function getEditRowCL(data_type){
                   '    <a href=\\\'#\\\' data-inline=\\\'true\\\' data-role=\\\'button\\\' data-icon=\\\'delete\\\' onclick=\\\'cancelSaveRow(this,'+data_type+');\\\'>Zrušit<\\\/a>'+
                   '</div>';
             break;
+        case 1:
             str = '<div>'+
                   '    <input type=\\\'text\\\' data-inline=\\\'true\\\' \\\/>'+
                   '&nbsp;'+
@@ -707,12 +708,8 @@ function setListviewFooterDataInsert(id, data, cs){
     if(data !== undefined){
         for(var i=0;i<data.length;i++){
             var arows = data[i].rows;
-            var v1 = 0;
-            var v2 = 0;
-            var v3 = 0;
-            var d1 = "";
-            var d2 = "";
-            var d3 = "";
+            var type_navigator = parseInt(decodeURIComponent(data[i].type_navigator));
+            type_navigator = type_navigator === null ? 0 : type_navigator;
             var p = 0;
             var current_obj = null;
             $('div[data-role="collapsible"]').each(function(){
@@ -721,11 +718,25 @@ function setListviewFooterDataInsert(id, data, cs){
                     return false;
                 }
                 p += 1;
-            }); 
-            content = '<div>'+
-                      '    <a href="#" data-icon="gear" data-role="button" class="bt_edit" onclick="editItemRows(this);changeButtonsCLToolbar(this);">Upravit</a>'+
-                      '</div>';
-            $(current_obj).find('ul').append('<li data-icon="false">'+content+'</li>').trigger('create').listview("refresh");
+            });
+            switch(type_navigator)
+            {
+                case 0:
+                    content = '';
+                    break;
+                case 1:
+                    content = '<div>'+
+                              '    <a href="#" data-icon="gear" data-role="button" class="bt_edit" onclick="editItemRows(this);changeButtonsCLToolbar(this);">Upravit</a>'+
+                              '</div>';
+                    break;
+                case 2:
+                    content = '<div>'+
+                              '    <a href="#" data-icon="plus" data-inline="true" data-role="button" class="bt_edit" onclick="" title="Nový záznam">&nbsp;</a>'+
+                              '    <a href="#" data-inline="true" data-role="button" class="bt_edit" onclick="" title="Zobrazit další">&nbsp;...&nbsp;</a>'+
+                              '</div>';
+                    break;
+            }  
+            content.length > 0 ? $(current_obj).find('ul').append('<li data-icon="false">'+content+'</li>').trigger('create').listview("refresh") : null;
             
         }
     }
