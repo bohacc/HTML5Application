@@ -378,8 +378,15 @@ function setValue(v, ref_val, cs){
     if(cs._type === 4){ 
         var str = "";
         var r_rows = v.rows;
+        var cols = v.cols === null ? 1 : parseInt(v.cols);
+        var class_col = "";
         var r_rownum = v.rownum;
+        var cl_name = v.name;
+        var cl_caption = v.caption;
+        var cl_hide = v.hide;
         var j = 0;
+        var c = 0;
+        var cleaner = "";
         var rnd = (""+Math.random()).replace(/\./g,"");
         aref_val_hidden = "";
         aref_val_id = "";
@@ -401,32 +408,36 @@ function setValue(v, ref_val, cs){
                     if(data_type !== undefined){
                         adata_type_row = data_type;
                     }
+                    c++;
+                    class_col = cl_name + '_col' + c;
+                    if(c >= cols){
+                        c = 0;
+                        cleaner = '<div class="cleaner">&nbsp;</div>';
+                    }else{
+                        cleaner = '';
+                    }
                     if(tmp !== "" || data_type !== undefined){
                         //setRowEvents(row_events, ref_val_id);//!!!!!!
-                        if(tmp === ""){
-                            class_hide = "hidex";
-                        }
-                        content_row += '<div class="row_data_item '+class_hide+'">'+
+                        class_hide = tmp === "" ? "hidex" : "";
+                        content_row += '<div class="row_data_item '+class_hide+' '+class_col+'">'+
                                        '    <div class="data_value">'+tmp+'</div>'+
                                        '    <input type="hidden" name="ap" value="'+db_field+'" />'+
-                                       '</div>';
+                                       '</div>'+
+                                       cleaner;
                     }
                 }
                 if(content_row !== ""){
                     if(adata_type_row !== ""){
-                        content_row = '<div style="float: left;">'+ // style="float: left; vertical-align: middle"
+                        content_row = '<div style="float: left;">'+ 
                                       '    <img src="web_get_img_data?aparameters=akod_obrazku:'+getPicture(adata_type_row)+'" />'+ 
                                       '</div>'+
-                                      //'<a href="#" data-role="button" data-icon="telefon" data-iconpos="notext">&nbsp;</a>'+
-                                      '<div class="row_data" style="float: left">'+content_row+'</div>'+ //data-inline="true" style="float: left"
+                                      '<div class="row_data" style="float: left">'+content_row+'</div>'+ 
                                       '<div class="cleaner">&nbsp;</div>';
                     }
                     str += '<li data-icon="false" data-role="fieldcontain">'+ 
                            '  <a href="javascript:void(0);">'+
-                           //'    <div>'+
                            content_row+
                            '  </a>'+
-                           //'    </div>'+
                            aref_val_hidden+
                            '</li>';                
                 }
@@ -438,15 +449,18 @@ function setValue(v, ref_val, cs){
             j++;
             if(parseInt(r_rownum) === j){
                 $(this).next().html(str);
-                //var tool_bar = '<a href="#" class="ui-btn-right">...</a>';
-                //$(this).append(tool_bar).trigger('create');
+                //zmena caption
+                if(cl_caption !== undefined && cl_caption !== null){
+                    $(this).find('.ui-btn-text').text(decodeURIComponent(cl_caption));
+                }
+                cl_hide === '1' ? $(this).parent().hide() : $(this).parent().show();
                 return false;
             } 
         });
         //-- schovají se prázdné řádky, ktere tu jsou pouze pro editaci
         $(cs._id).find('.hidex').closest('li').hide();
         //-- recreate lisview
-        refreshListview(cs._id);  
+        refreshListview(cs._id);
     }
 }
 
@@ -761,13 +775,16 @@ function changeButtonsCLToolbar(obj){
         if($(obj).hasClass("bt_save")){
             $(obj).parent().parent().parent().find('.row_data_item').each(function(){
                 $(this).find('.data_value').text($(this).find('input[type=text]').val());
+                $(this).find('input[type=text]').val().length === 0 
+                    ? $(this).parent().find('.hidex').closest('li').hide() 
+                    : $(this).parent().find('.hidex').removeClass('hidex');
             }); 
         }
         if($(obj).hasClass("bt_cancel")){
             $(obj).parent().parent().parent().find('.row_data_item').find('.data_value').show();
             $(obj).parent().parent().parent().find('.row_data_item').find('input[type="text"]').remove();
+            $(obj).parent().parent().parent().find('.hidex').closest('li').hide();
         }
-        $(obj).parent().parent().parent().find('.hidex').closest('li').hide();
         $(obj).find('.onEdit').removeClass('onEdit');
         $(obj).parent().parent().parent().find('.inputDelete').remove();
     }
