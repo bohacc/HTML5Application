@@ -31,7 +31,7 @@
                       //    data_encode = decodeURIComponent( data );
                       //}; 
                       afunc( data_encode, obj, fce ); 
-                  },            
+              },
               contentType: "application/x-www-form-urlencoded; charset="+acharset,
               async: xasync,
               headers: { Accept : "application/x-www-form-urlencoded; charset="+acharset,
@@ -43,8 +43,8 @@
                                                "Connection": "keep-alive"
               },
               beforeSend: function(xhr) {
-                                     xhr.setRequestHeader("Accept-Charset",""+acharset);
-                                     xhr.setRequestHeader("Content-type","application/x-www-form-urlencoded; charset="+acharset);
+                      xhr.setRequestHeader("Accept-Charset",""+acharset);
+                      xhr.setRequestHeader("Content-type","application/x-www-form-urlencoded; charset="+acharset);
              }
             } 
           );
@@ -52,6 +52,32 @@
      
         };
       };    
+    
+
+$(document).delegate('div[data-role=page]', 'pageshow', function() {
+    var theme = $.mobile.loadingMessageTheme;
+    var msgText = "načítám...";    
+    $.mobile.showPageLoadingMsg(theme, msgText, false);
+});
+
+$(document).live('pageinit', function(){    
+    try {  
+      $(document).ajaxStart( function() { 
+          var theme = $.mobile.loadingMessageTheme;
+          var msgText = "načítám...";
+          $.mobile.showPageLoadingMsg(theme, msgText, false);
+      });
+      $(document).ajaxStop( function() { 
+          $.mobile.hidePageLoadingMsg();
+      });
+      $(document).ajaxError( function() { 
+          $.mobile.hidePageLoadingMsg();
+      });
+    } catch(err) { 
+
+    }; 
+});
+
     
 function getParam(name) {
   var searchString = window.location.search.substring(1);
