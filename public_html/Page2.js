@@ -21,12 +21,10 @@ function editItemRows(obj){
         // pro jistotu, kdyby tam neco zustalo
         $(this).find('input[type="text"]').remove();
         
-        var input_text = '<input type="text" name="ap" value="' + $(this).find('.data_value').text()+'" onkeypress="onInputChange(this)" />'+
-                         '<a href="#" class="inputDelete" onclick="$(this).parent().find(\'input[type=text]\').val(\'\')"><img src="web_get_img_data?aparameters=akod_obrazku:'+getImg(1)+'" alt="smazat" /></a>';
+        var input_text = '<input type="text" name="ap" value="' + $(this).find('.data_value').text()+'" onkeypress="onInputChange(this)" />';
+        var delete_icon = '<a href="#" class="inputDelete" onclick="$(this).parent().find(\'input[type=text]\').val(\'\')"><img src="web_get_img_data?aparameters=akod_obrazku:'+getImg(2)+'" alt="smazat" /></a>';
         $(this).append(input_text).trigger('create');
-        //$(this).find('input[type="text"]').trigger('create');
-        //refreshListview($(obj).closest('ul').attr('id'));
-        //$(obj).closest('ul').listview('refresh');
+        $(this).parent().parent().find('.td_delete').html(delete_icon).trigger('create');
     });
 }
 
@@ -46,20 +44,18 @@ function getParamsItemRows(obj){
 function saveItemRows(obj){
     var fix_params = "&aparameters=akod_r:web_adresar_pda_ins_json&aparameters=spouzetelo:1";
     nAjax('web_redir', fix_params+getParamsItemRows(obj), function(data){
-        try{
+        try{            
             var data_fmt = $.parseJSON(data);
             var errors = parseInt(decodeURIComponent(data_fmt.errors));
             if(errors === 0){
-                $(obj).parent().parent().parent().find('.row_data_item').find('.data_value').show();
-                $(obj).parent().parent().parent().find('.row_data_item').find('input[type="text"]').remove();
+
+            }else{
+                alert('Při ukládání došlo k chybě');
             }
-            
         }catch(e){
-            alert('Při ukládání došlo k chybě');
-            $(obj).parent().parent().parent().find('.row_data_item').find('.data_value').show();
-            $(obj).parent().parent().parent().find('.row_data_item').find('input[type="text"]').remove();            
-        }
-    });
+                alert('Při ukládání došlo k chybě');            
+        }            
+    });    
 }
 
 // INICIALIZACE CONTROLLERU 

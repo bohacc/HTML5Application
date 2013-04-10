@@ -5,10 +5,8 @@
 
       function nEncodeUri( str ) {
         var tmp_str = str.replace(/&aparameters=/g, '(!)').replace(/&aParameters=/g, '(!)');
-        //tmp_str = tmp_str.replace(/\?aparameters=/g, '(*!)').replace(/\?aParameters=/g, '(*!)');
         tmp_str = encodeURIComponent( tmp_str );
         tmp_str = tmp_str.replace(/\(\!\)/g, '&aparameters=');
-        //tmp_str = tmp_str.replace(/\(\*\!\)/g, '?aparameters=');
         tmp_str = tmp_str.replace( /\+/g, encodeURIComponent( '+' )); 
         return tmp_str;
       };
@@ -18,7 +16,6 @@
         var url_encode = nEncodeUri( aparams ); 
         var acharset = 'utf-8';
         if ( async !== null) { xasync = async; };
-        //alert(url_encode + '&aparameters=aajx:1&aparameters=rnd:'+Math.random()*99999);
         try{
           $.ajax( 
             { url: call,
@@ -27,9 +24,6 @@
               success: 
                   function( data ) { 
                       var data_encode = ""+data; 
-                      //if ( decURI === null || decURI === true) { 
-                      //    data_encode = decodeURIComponent( data );
-                      //}; 
                       afunc( data_encode, obj, fce ); 
               },
               contentType: "application/x-www-form-urlencoded; charset="+acharset,
@@ -96,13 +90,7 @@ function getParam(name) {
 
 function goToPageWithParams(call, params){
     var str = "";
-    var tmp = params.replace(/ap=/g,'');
-    /*if(params !== null){
-        var p = params.split('&');
-        for(var i=0;i<p.length;i++){
-            $('form[name="form_page"]').append('<input type="hidden" name="ap" value="'+p[i]+'">');
-        }
-    }*/    
+    var tmp = params.replace(/ap=/g,'');   
     while(tmp.indexOf('&') > 0){
         var val = tmp.substr(0, tmp.indexOf('&'));
         str += '  <input type="hidden" name="ap" value="'+val+'">';
@@ -155,7 +143,6 @@ function setPageHead(page){
         
         $('div[data-role="navbar"] ul').append('<li><a id="header_edit" data-icon="delete" onclick="javascript:self.history.back();">Zpět</a></li>').trigger('create');
         $('div[data-role="navbar"] ul').append('<li><a id="header_edit" data-icon="check" onclick="initSave();">Uložit</a></li>').trigger('create');
-        //$('#header_post').removeClass('ui-btn-left').addClass('ui-btn-right');
     }
 };
 
@@ -199,7 +186,7 @@ var page = null;
 
 var pictures = ["PDA_EMAIL","PDA_MOBIL","PDA_TELEFON","PDA_OSOBA","PDA_ADRESA","PDA_WWW","PDA_SKYPE","PDA_TWITTER"]; // poradi dle typu
 var titles = ["email","mobil","telefon","osoba","adresa","www","skype","twitter"]; // poradi dle typu
-var images = ["ODEBRAT","PDA_EMAIL"];
+var images = ["ODEBRAT","PDA_EMAIL","PDA_SMAZAT"];
 
 function cancelSaveRow(id, data_type){
     $(id).parent().prev().show();
@@ -269,7 +256,6 @@ function getEditRowCL(data_type){
                   '</div>';
             break;
     }
-    //alert(str);
     return str;
 }
 
@@ -326,10 +312,6 @@ function regCtrl(id, id_ctrl, metadata){
 function delmtr(){
     return ":";
 }
-
-/*function addToCalls(aid, ads, afield, atype, amulti, aparams, acallbackFce, arow_events, afield_ref_val, anested_fields){
-    callsStack.push(new CallStack(aid, ads, afield, atype, amulti, aparams, acallbackFce, arow_events, afield_ref_val, anested_fields));
-}*/
 
 function getParams(){
     return "";
@@ -445,7 +427,7 @@ function setValue(v, ref_val, cs){
                     if(tmp !== "" || data_type !== undefined){
                         //setRowEvents(row_events, ref_val_id);//!!!!!!
                         class_hide = tmp === "" ? "hidex" : "";
-                        content_row += '<div class="row_data_item '+class_hide+' '+class_col+'">'+
+                        content_row += '<div data-role="fieldcontain" class="row_data_item '+class_hide+' '+class_col+'">'+
                                        '    <div class="data_value">'+tmp+'</div>'+
                                        '    <input type="hidden" name="ap" value="'+db_field+'" />'+
                                        '</div>'+
@@ -454,11 +436,13 @@ function setValue(v, ref_val, cs){
                 }
                 if(content_row !== ""){
                     if(adata_type_row !== ""){
-                        content_row = '<div style="float: left;">'+ 
+                        content_row = '<table data-role="table" class="table_data ui-responsive table-stroke"><tr>'+
+                                      ' <td class="tab_1">'+
                                       '    <img src="web_get_img_data?aparameters=akod_obrazku:'+getPicture(adata_type_row)+'" />'+ 
-                                      '</div>'+
-                                      '<div class="row_data" style="float: left">'+content_row+'</div>'+ 
-                                      '<div class="cleaner">&nbsp;</div>';
+                                      ' </td>'+
+                                      ' <td class="tab_2">'+content_row+'</td>'+
+                                      ' <td class="tab_3 td_delete">&nbsp;</td>'+
+                                      '</tr></table>';
                     }
                     str += '<li data-icon="false" data-role="fieldcontain">'+ 
                            '  <a href="javascript:void(0);">'+
@@ -793,7 +777,7 @@ function changeButtonsCLToolbar(obj){
             $(obj).parent().find('.bt_save').show();
             $(obj).parent().find('.bt_cancel').show();            
         }
-        $(obj).parent().parent().parent().find('.hidex').closest('li').show();
+        $(obj).parent().parent().parent().find('.row_data_item').closest('li').show();
     }else{
         $(obj).parent().find('.bt_save').hide();
         $(obj).parent().find('.bt_cancel').hide();
@@ -801,15 +785,17 @@ function changeButtonsCLToolbar(obj){
         if($(obj).hasClass("bt_save")){
             $(obj).parent().parent().parent().find('.row_data_item').each(function(){
                 $(this).find('.data_value').text($(this).find('input[type=text]').val());
-                $(this).find('input[type=text]').val().length === 0 
-                    ? $(this).parent().find('.hidex').closest('li').hide() 
-                    : $(this).parent().find('.hidex').removeClass('hidex');
+                if($(this).find('input[type=text]').val().length === 0) { $(this).closest('li').hide() };
+                $(this).find('input[type=text]').remove();
+                $(this).find('.data_value').show();
             }); 
         }
         if($(obj).hasClass("bt_cancel")){
-            $(obj).parent().parent().parent().find('.row_data_item').find('.data_value').show();
-            $(obj).parent().parent().parent().find('.row_data_item').find('input[type="text"]').remove();
-            $(obj).parent().parent().parent().find('.hidex').closest('li').hide();
+            $(obj).parent().parent().parent().find('.row_data_item').each(function(){
+                if($(this).find('.data_value').text().length === 0) { $(this).closest('li').hide() };
+            });
+            $(obj).parent().parent().parent().find('.row_data_item').find('.data_value').show();            
+            $(obj).parent().parent().parent().find('.row_data_item').find('input[type="text"]').remove();            
         }
         $(obj).find('.onEdit').removeClass('onEdit');
         $(obj).parent().parent().parent().find('.inputDelete').remove();
