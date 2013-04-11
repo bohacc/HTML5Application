@@ -33,13 +33,12 @@ function saveSearchText(obj){
     nAjax('web_redir',
           '&aparameters=akod_r:web_search_text_save_json&aparameters=spouzetelo:1&aparameters=code:'+tmp,
           function(data){
-              //$.mobile.changePage('web_redir_backend?ap=akod_r:CRM_KONTAKTY_PDA_PAGE2&ap=apartner:'+tmp);
               goToPageWithParams('web_redir_backend', 'ap=akod_r:CRM_KONTAKTY_PDA_PAGE2&ap=apartner:'+tmp);
           });
 }
 
 function emailEnter(event, obj){
-    if(event.keyCode == '13'){
+    if(event.keyCode === '13'){
         if($(obj).val().length < 3){
             alert("Zadejte minimálně 3 znaky");
         }else{
