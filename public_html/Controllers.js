@@ -54,7 +54,7 @@ $(document).delegate('div[data-role=page]', 'pageshow', function() {
     $.mobile.showPageLoadingMsg(theme, msgText, false);
 });
 
-$(document).live('pageinit', function(){    
+$(document).bind('pageinit', function(){    
     try {  
       $(document).ajaxStart( function() { 
           var theme = $.mobile.loadingMessageTheme;
@@ -754,14 +754,43 @@ function setListviewFooterDataInsert(id, data, cs){
                               '</div>';
                     break;
                 case 2:
+                    var functionNewRecord = decodeURIComponent(data[i].functionNewRecord);
+                    var functionNextRecords = decodeURIComponent(data[i].functionNextRecords);
                     content = '<div>'+
-                              '    <a href="#" data-icon="plus" data-inline="true" data-role="button" class="bt_edit" onclick="" title="Nový záznam">&nbsp;</a>'+
-                              '    <a href="#" data-inline="true" data-role="button" class="bt_edit" onclick="" title="Zobrazit další">&nbsp;...&nbsp;</a>'+
+                              '    <a href="#" data-icon="plus" data-inline="true" data-role="button" class="bt_new" onclick="changeButtonsCLToolbar2(this);'+functionNewRecord+'(this);" title="Nový záznam">Přidat</a>'+
+                              '    <a href="#" data-inline="true" data-role="button" class="bt_next" onclick="'+functionNextRecords+'(this)" title="Zobrazit další úkoly">Zobrazit další</a>'+
                               '</div>';
                     break;
             }  
             content.length > 0 ? $(current_obj).find('ul').append('<li data-icon="false">'+content+'</li>').trigger('create').listview("refresh") : null;
             
+        }
+    }
+}
+
+function changeButtonsCLToolbar2(obj){  
+    if($(obj).hasClass("bt_new")){
+        $(obj).hide().next().hide();
+        if($(obj).parent().find('.bt_save')){
+            var str = '    <a href="#" data-icon="check" data-inline="true" data-role="button" class="bt_save" onclick="changeButtonsCLToolbar2(this);">Uložit</a>'+
+                      '    <a href="#" data-icon="delete" data-inline="true" data-role="button" class="bt_cancel" onclick="changeButtonsCLToolbar2(this);">Zrušit</a>';        
+            $(obj).parent().append(str).trigger('create');  
+        }else{
+            $(obj).parent().find('.bt_save').show();
+            $(obj).parent().find('.bt_cancel').show();            
+        }
+    }else{
+        $(obj).parent().find('.bt_save').hide();
+        $(obj).parent().find('.bt_cancel').hide();
+        $(obj).parent().find('.bt_new').show();
+        $(obj).parent().find('.bt_next').show();
+        if($(obj).hasClass("bt_save")){
+            $('.newTask').remove();
+            refreshListview($(obj).closest('div[data-role="collapsible"]'));
+        }
+        if($(obj).hasClass("bt_cancel")){
+            $('.newTask').remove();
+            refreshListview($(obj).closest('div[data-role="collapsible"]'));           
         }
     }
 }

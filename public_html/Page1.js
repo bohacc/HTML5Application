@@ -53,7 +53,7 @@ function emailEnter(event, obj){
 
 // INICIALIZACE CONTROLLERU 
 
-$(document).live('pageinit', function(event){
+$(document).bind('pageinit', function(event){
     page = new Page(1);
     initPage(page);
     regCtrl('#aemail',1,['set_onkeypress:emailEnter(event, this)']);

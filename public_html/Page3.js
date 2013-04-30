@@ -8,7 +8,7 @@
 
 // INICIALIZACE CONTROLLERU 
 
-$(document).live('pageinit', function(event){
+$(document).bind('pageinit', function(event){
     page = new Page(3);
     initPage(page);
     

@@ -4,6 +4,40 @@
  */
 
 // FUNCTION FOR CONTROLLERS
+function deleteNewTask(obj){
+    $(obj).closest('li').remove();
+    refreshListview($(obj).closest('div[data-role="collapsible"]'));
+}
+
+function postNewTask(){
+    nAjax('web_redir', 
+          '&aparameters=akod_r:'+
+          '&aparameters=spouzetelo:1'+
+          '&aparameters=subject:'+$('#taskSubject').val()+
+          '&aparameters=description:'+$('#taskDescription').val()+
+          '&aparameters=date:'+$('#taskDate').val()+
+          '&aparameters=person:'+$('#taskPerson').val(), 
+          function(data){
+        
+    });
+}
+
+function tasksNewRecord(obj){
+    var tmp = '<li class="newTask">'+
+                '<a href="javascript:void(0);">'+
+                '<table class="table_data">'+
+                    '<tr><td><label for="taskSubject">Předmět:<\/label><input type="text" id="taskSubject" \/><\/td><\/tr>'+
+                    '<tr><td><label for="taskDescription">Text:<\/label><textarea cols="40" rows="8" id="taskDescription"><\/textarea><\/td><\/tr>'+
+                    '<tr><td><label for="taskDate">Termín splnění:<\/label><input type="date" id="taskDate" \/><\/td><\/tr>'+                    
+                    '<tr><td><label for="taskPerson">Osoba:<\/label><select id="taskPerson"><option value="" \/><\/select><\/td><\/tr>'+
+                '<\/table>'+
+                '<\/a>'+
+                '<script type="text\/javascript">$(".newTask").parent().find(".bt_save").bind("click", function(){postNewTask();});<\/script>'+
+              '<\/li>';
+    $(obj).closest('li').before(tmp).trigger('create');
+    refreshListview($(obj).closest('div[data-role="collapsible"]'));
+}
+
 function saveRow(obj, data_type){
     var val = $(obj).val();
     var params = '&aparameters=aid:'+$('.ref_id').get(0).value+
@@ -60,7 +94,7 @@ function saveItemRows(obj){
 
 // INICIALIZACE CONTROLLERU 
 
-$(document).live('pageinit', function(event){
+$(document).bind('pageinit', function(event){
     page = new Page(2);
     initPage(page);
     
