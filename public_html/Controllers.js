@@ -772,7 +772,7 @@ function changeButtonsCLToolbar2(obj){
     if($(obj).hasClass("bt_new")){
         $(obj).hide().next().hide();
         if($(obj).parent().find('.bt_save')){
-            var str = '    <a href="#" data-icon="check" data-inline="true" data-role="button" class="bt_save" onclick="changeButtonsCLToolbar2(this);">Uložit</a>'+
+            var str = '    <a href="#" data-icon="check" data-inline="true" data-role="button" class="bt_save" onclick="">Uložit</a>'+
                       '    <a href="#" data-icon="delete" data-inline="true" data-role="button" class="bt_cancel" onclick="changeButtonsCLToolbar2(this);">Zrušit</a>';        
             $(obj).parent().append(str).trigger('create');  
         }else{

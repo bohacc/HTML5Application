@@ -4,22 +4,62 @@
  */
 
 // FUNCTION FOR CONTROLLERS
+function initComboPerson(){
+    nAjax('web_redir', '&aparameters=akod_r:web_mvc_udaje_os_ukol_json&aparameters=spouzetelo:1', function(data){
+        var data_fmt = $.parseJSON(data);
+        var state = decodeURIComponent(data_fmt.state);
+        var message = decodeURIComponent(data_fmt.message);
+        if (state === '1'){
+            var records = data_fmt.records;
+            var str = '<option value="">&nbsp;</option>';
+            for (var i = 0; i < records.length; i++){
+                var code = decodeURIComponent(records[i].code);
+                var name = decodeURIComponent(records[i].name);
+                str += '<option value="'+code+'">'+name+'</option>';
+            }
+            $('#taskPerson').html(str).trigger('create').trigger('refresh');
+        }else{
+            alert('Při plnění nabídky pověřená osoba došlo k chybě.\n\n'+message);
+        }
+    });
+}
+
 function deleteNewTask(obj){
     $(obj).closest('li').remove();
     refreshListview($(obj).closest('div[data-role="collapsible"]'));
 }
 
+function verifyTask(){
+    var err = 0;
+    if ($('#taskSubject').val().length === 0 && err === 0){ err = 1; alert('Zadejte předmět'); $('#taskSubject').focus(); };
+    if ($('#taskDescription').val().length === 0 && err === 0){ err = 1; alert('Zadejte text'); $('#taskDescription').focus(); };
+    if ($('#taskDate').val().length === 0 && err === 0){ err = 1; alert('Zadejte datum'); $('#taskDate').focus(); };
+    if ($('#taskPerson').val().length === 0 && err === 0){ err = 1; alert('Zadejte osobu'); $('#taskPerson').focus(); };
+    return err = err === 1 ? 0 : 1;
+}
+
 function postNewTask(){
-    nAjax('web_redir', 
-          '&aparameters=akod_r:'+
-          '&aparameters=spouzetelo:1'+
-          '&aparameters=subject:'+$('#taskSubject').val()+
-          '&aparameters=description:'+$('#taskDescription').val()+
-          '&aparameters=date:'+$('#taskDate').val()+
-          '&aparameters=person:'+$('#taskPerson').val(), 
-          function(data){
-        
-    });
+    if (verifyTask() === 1){
+        nAjax('web_redir', 
+              '&aparameters=akod_r:web_mvc_crm_k_ukol_ins_json'+
+              '&aparameters=spouzetelo:1'+
+              '&aparameters=subject:'+$('#taskSubject').val()+
+              '&aparameters=description:'+$('#taskDescription').val()+
+              '&aparameters=date:'+$('#taskDate').val()+
+              '&aparameters=person:'+$('#taskPerson').val()+
+              '&aparameters=ident:'+$('.ref_id').val(), 
+              function(data){
+                  var data_fmt = $.parseJSON(data);
+                  var state = decodeURIComponent(data_fmt.state);
+                  var message = decodeURIComponent(data_fmt.message);
+                  if (state === '1'){
+                      //$(".newTask").remove();
+                      changeButtonsCLToolbar2(this);
+                  }else{
+                      alert('Při ukládání úkolu došlo k chybě.\n\n'+message);
+                  }
+        });
+    };
 }
 
 function tasksNewRecord(obj){
@@ -32,7 +72,10 @@ function tasksNewRecord(obj){
                     '<tr><td><label for="taskPerson">Osoba:<\/label><select id="taskPerson"><option value="" \/><\/select><\/td><\/tr>'+
                 '<\/table>'+
                 '<\/a>'+
-                '<script type="text\/javascript">$(".newTask").parent().find(".bt_save").bind("click", function(){postNewTask();});<\/script>'+
+                '<script type="text\/javascript">'+
+                    '$(".newTask").parent().find(".bt_save").bind("click", function(){postNewTask(this);});'+
+                    'initComboPerson();'+
+                '<\/script>'+
               '<\/li>';
     $(obj).closest('li').before(tmp).trigger('create');
     refreshListview($(obj).closest('div[data-role="collapsible"]'));
