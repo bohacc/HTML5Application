@@ -38,7 +38,7 @@ function verifyTask(){
     return err = err === 1 ? 0 : 1;
 }
 
-function postNewTask(){
+function postNewTask(obj){
     if (verifyTask() === 1){
         nAjax('web_redir', 
               '&aparameters=akod_r:web_mvc_crm_k_ukol_ins_json'+
@@ -53,8 +53,8 @@ function postNewTask(){
                   var state = decodeURIComponent(data_fmt.state);
                   var message = decodeURIComponent(data_fmt.message);
                   if (state === '1'){
-                      //$(".newTask").remove();
-                      changeButtonsCLToolbar2(this);
+                      changeButtonsCLToolbar2(obj);
+                      initDocs();
                   }else{
                       alert('Při ukládání úkolu došlo k chybě.\n\n'+message);
                   }
@@ -64,14 +64,14 @@ function postNewTask(){
 
 function tasksNewRecord(obj){
     var tmp = '<li class="newTask">'+
-                '<a href="javascript:void(0);">'+
+                //'<a href="javascript:void(0);">'+
                 '<table class="table_data">'+
                     '<tr><td><label for="taskSubject">Předmět:<\/label><input type="text" id="taskSubject" \/><\/td><\/tr>'+
                     '<tr><td><label for="taskDescription">Text:<\/label><textarea cols="40" rows="8" id="taskDescription"><\/textarea><\/td><\/tr>'+
                     '<tr><td><label for="taskDate">Termín splnění:<\/label><input type="date" id="taskDate" \/><\/td><\/tr>'+                    
                     '<tr><td><label for="taskPerson">Osoba:<\/label><select id="taskPerson"><option value="" \/><\/select><\/td><\/tr>'+
                 '<\/table>'+
-                '<\/a>'+
+                //'<\/a>'+
                 '<script type="text\/javascript">'+
                     '$(".newTask").parent().find(".bt_save").bind("click", function(){postNewTask(this);});'+
                     'initComboPerson();'+
@@ -92,7 +92,7 @@ function saveRow(obj, data_type){
 }
 
 function editItemRows(obj){
-    $(obj).parent().parent().parent().find('.row_data_item').each(function(){
+    $(obj).closest('table').parent().parent().parent().find('.row_data_item').each(function(){
         $(this).find('.data_value').hide();
         
         // pro jistotu, kdyby tam neco zustalo
@@ -108,7 +108,7 @@ function editItemRows(obj){
 function getParamsItemRows(obj){
     var str = "";
     var field = "";
-    $(obj).parent().parent().parent().find('input[type="text"]').each(function(){
+    $(obj).closest('table').parent().parent().parent().find('input[type="text"]').each(function(){
         field = $(this).parent().find('input[type="hidden"]').val();
         if(field.length > 0){
             str += "&aparameters=" + field + ":" + $(this).val();

@@ -750,15 +750,19 @@ function setListviewFooterDataInsert(id, data, cs){
                     break;
                 case 1:
                     content = '<div>'+
-                              '    <a href="#" data-icon="gear" data-role="button" class="bt_edit" onclick="editItemRows(this);changeButtonsCLToolbar(this);">Upravit</a>'+
+                              '  <table style="width: 100%"><tr>'+
+                              '    <td><a href="#" style="width: 100%" data-icon="gear" data-role="button" class="bt_edit" onclick="editItemRows(this);changeButtonsCLToolbar(this);">Upravit</a></td>'+
+                              '  </tr></table>'+
                               '</div>';
                     break;
                 case 2:
                     var functionNewRecord = decodeURIComponent(data[i].functionNewRecord);
                     var functionNextRecords = decodeURIComponent(data[i].functionNextRecords);
                     content = '<div>'+
-                              '    <a href="#" data-icon="plus" data-inline="true" data-role="button" class="bt_new" onclick="changeButtonsCLToolbar2(this);'+functionNewRecord+'(this);" title="Nový záznam">Přidat</a>'+
-                              '    <a href="#" data-inline="true" data-role="button" class="bt_next" onclick="'+functionNextRecords+'(this)" title="Zobrazit další úkoly">Zobrazit další</a>'+
+                              '  <table style="width: 100%"><tr>'+
+                              '    <td style="width: 50%"><a href="#" style="width: 100%" data-icon="plus" data-inline="true" data-role="button" class="bt_new" onclick="changeButtonsCLToolbar2(this);'+functionNewRecord+'(this);" title="Nový záznam">Přidat</a></td>'+
+                              '    <td style="width: 50%"><a href="#" style="width: 100%" data-inline="true" data-role="button" class="bt_next" onclick="'+functionNextRecords+'(this)" title="Zobrazit další úkoly">Zobrazit další</a></td>'+
+                              '  </tr></table>'+
                               '</div>';
                     break;
             }  
@@ -770,20 +774,23 @@ function setListviewFooterDataInsert(id, data, cs){
 
 function changeButtonsCLToolbar2(obj){  
     if($(obj).hasClass("bt_new")){
-        $(obj).hide().next().hide();
-        if($(obj).parent().find('.bt_save')){
-            var str = '    <a href="#" data-icon="check" data-inline="true" data-role="button" class="bt_save" onclick="">Uložit</a>'+
-                      '    <a href="#" data-icon="delete" data-inline="true" data-role="button" class="bt_cancel" onclick="changeButtonsCLToolbar2(this);">Zrušit</a>';        
-            $(obj).parent().append(str).trigger('create');  
+        $(obj).closest('table').hide();
+        if(!$(obj).closest('table').parent().find('.bt_save').length){
+            var str = '<table style="width: 100%"><tr>'+
+                      '    <td style="width: 50%"><a href="#" style="width: 100%" data-icon="check" data-inline="true" data-role="button" class="bt_save" onclick="">Uložit</a></td>'+
+                      '    <td style="width: 50%"><a href="#" style="width: 100%" data-icon="delete" data-inline="true" data-role="button" class="bt_cancel" onclick="changeButtonsCLToolbar2(this);">Zrušit</a></td>'
+                      '</tr></table>';        
+            $(obj).closest('table').after(str).trigger('create');
+            $(obj).closest('table').parent().find('a').button();
         }else{
-            $(obj).parent().find('.bt_save').show();
-            $(obj).parent().find('.bt_cancel').show();            
+            $(obj).closest('table').parent().find('.bt_save').closest('table').show();
+            $(obj).closest('table').parent().find('.bt_cancel').closest('table').show();            
         }
     }else{
-        $(obj).parent().find('.bt_save').hide();
-        $(obj).parent().find('.bt_cancel').hide();
-        $(obj).parent().find('.bt_new').show();
-        $(obj).parent().find('.bt_next').show();
+        $(obj).closest('table').parent().find('.bt_save').closest('table').hide();
+        $(obj).closest('table').parent().find('.bt_cancel').closest('table').hide();
+        $(obj).closest('table').parent().find('.bt_new').closest('table').show();
+        $(obj).closest('table').parent().find('.bt_next').closest('table').show();
         if($(obj).hasClass("bt_save")){
             $('.newTask').remove();
             refreshListview($(obj).closest('div[data-role="collapsible"]'));
@@ -797,22 +804,25 @@ function changeButtonsCLToolbar2(obj){
 
 function changeButtonsCLToolbar(obj){  
     if($(obj).hasClass("bt_edit")){
-        $(obj).hide();
-        if($(obj).parent().find('.bt_save')){
-            var str = '    <a href="#" data-icon="check" data-inline="true" data-role="button" class="bt_save" onclick="saveItemRows(this);changeButtonsCLToolbar(this);">Uložit</a>'+
-                      '    <a href="#" data-icon="delete" data-inline="true" data-role="button" class="bt_cancel" onclick="changeButtonsCLToolbar(this);">Zrušit</a>';        
-            $(obj).parent().append(str).trigger('create');  
+        $(obj).closest('table').hide();
+        if(!$(obj).closest('table').parent().find('.bt_save').length){
+            var str = '<table style="width: 100%"><tr>'+
+                      '    <td style="width: 50%"><a href="#" style="width: 100%" data-icon="check" data-inline="true" data-role="button" class="bt_save" onclick="saveItemRows(this);changeButtonsCLToolbar(this);">Uložit</a></td>'+
+                      '    <td style="width: 50%"><a href="#" style="width: 100%" data-icon="delete" data-inline="true" data-role="button" class="bt_cancel" onclick="changeButtonsCLToolbar(this);">Zrušit</a></td>'+
+                      '</tr></table>';
+            $(obj).closest('table').after(str).trigger('create');
+            $(obj).closest('table').parent().find('a').button();
         }else{
-            $(obj).parent().find('.bt_save').show();
-            $(obj).parent().find('.bt_cancel').show();            
+            $(obj).closest('table').parent().find('.bt_save').closest('table').show();
+            $(obj).closest('table').parent().find('.bt_cancel').closest('table').show();            
         }
-        $(obj).parent().parent().parent().find('.row_data_item').closest('li').show();
+        $(obj).closest('table').parent().parent().parent().find('.row_data_item').closest('li').show();
     }else{
-        $(obj).parent().find('.bt_save').hide();
-        $(obj).parent().find('.bt_cancel').hide();
-        $(obj).parent().find('.bt_edit').show();
+        $(obj).closest('table').parent().find('.bt_save').closest('table').hide();
+        $(obj).closest('table').parent().find('.bt_cancel').closest('table').hide();
+        $(obj).closest('table').parent().find('.bt_edit').closest('table').show();
         if($(obj).hasClass("bt_save")){
-            $(obj).parent().parent().parent().find('.row_data_item').each(function(){
+            $(obj).closest('table').parent().parent().parent().find('.row_data_item').each(function(){
                 $(this).find('.data_value').text($(this).find('input[type=text]').val());
                 if($(this).find('input[type=text]').val().length === 0) { $(this).closest('li').hide() };
                 $(this).find('input[type=text]').remove();
@@ -820,14 +830,14 @@ function changeButtonsCLToolbar(obj){
             }); 
         }
         if($(obj).hasClass("bt_cancel")){
-            $(obj).parent().parent().parent().find('.row_data_item').each(function(){
+            $(obj).closest('table').parent().parent().parent().find('.row_data_item').each(function(){
                 if($(this).find('.data_value').text().length === 0) { $(this).closest('li').hide() };
             });
-            $(obj).parent().parent().parent().find('.row_data_item').find('.data_value').show();            
-            $(obj).parent().parent().parent().find('.row_data_item').find('input[type="text"]').remove();            
+            $(obj).closest('table').parent().parent().parent().find('.row_data_item').find('.data_value').show();            
+            $(obj).closest('table').parent().parent().parent().find('.row_data_item').find('input[type="text"]').remove();            
         }
         $(obj).find('.onEdit').removeClass('onEdit');
-        $(obj).parent().parent().parent().find('.inputDelete').remove();
+        $(obj).closest('table').parent().parent().parent().find('.inputDelete').remove();
     }
 }
 
