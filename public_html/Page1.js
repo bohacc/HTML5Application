@@ -38,7 +38,7 @@ function saveSearchText(obj){
 }
 
 function emailEnter(event, obj){
-    if(event.keyCode === '13'){
+    if(event.keyCode == '13'){
         if($(obj).val().length < 3){
             alert("Zadejte minimálně 3 znaky");
         }else{

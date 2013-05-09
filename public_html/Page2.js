@@ -81,6 +81,36 @@ function tasksNewRecord(obj){
     refreshListview($(obj).closest('div[data-role="collapsible"]'));
 }
 
+function eventsNewRecord(obj){
+    var tmp = '<li class="newTask">'+
+                //'<a href="javascript:void(0);">'+
+                '<table class="table_data">'+
+                    '<tr><td><label for="eventDate">Datum:<\/label><input type="date" id="eventDate" \/><\/td><\/tr>'+                        
+                    '<tr><td><label for="eventFrom">Od:<\/label><input type="date" id="eventFrom" \/><\/td><\/tr>'+
+                    '<tr><td><label for="eventTo">Do:<\/label><input type="date" id="eventTo" \/><\/td><\/tr>'+                    
+                    '<tr><td><label for="eventSubject">Předmět:<\/label><input type="text" id="eventSubject" \/><\/td><\/tr>'+
+                    '<tr><td><label for="eventDescription">Poznámka:<\/label><textarea cols="40" rows="8" id="eventDescription"><\/textarea><\/td><\/tr>'+
+                    '<tr><td><div data-role="fieldcontain">'+
+                                '<label for="taskPersons" class="select">Účastníci:</label>'+
+                                '<select name="taskPersons" id="taskPersons" multiple="multiple" data-native-menu="false">'+
+                                    '<option>Účastníci<\/option>'+
+                                    '<option value="standard">Standard: 7 day<\/option>'+
+                                    '<option value="rush">Rush: 3 days<\/option>'+
+                                    '<option value="express">Express: next day<\/option>'+
+                                    '<option value="overnight">Overnight<\/option>'+
+                                '<\/select>'+
+                             '<\/div><\/td><\/tr>'+
+                '<\/table>'+
+                //'<\/a>'+
+                '<script type="text\/javascript">'+
+                    '$(".newTask").parent().find(".bt_save").bind("click", function(){postNewTask(this);});'+
+                    'initComboPerson();'+
+                '<\/script>'+
+              '<\/li>';
+    $(obj).closest('li').before(tmp).trigger('create');
+    refreshListview($(obj).closest('div[data-role="collapsible"]'));
+}
+
 function saveRow(obj, data_type){
     var val = $(obj).val();
     var params = '&aparameters=aid:'+$('.ref_id').get(0).value+

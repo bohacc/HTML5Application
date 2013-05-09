@@ -151,10 +151,16 @@ function setPageFoot(page){
     $('div[data-role="content"]').after(foot);
 };
 
+function setPageContent(){
+    
+    
+}
+
 function initPage(p){
     page = p;
     setPageHead(p);
     setPageFoot(p);
+    setPageContent(p);
     // recreate page with new content
     $('div[data-role="page"]').trigger('pagecreate');
 }
@@ -187,6 +193,10 @@ var page = null;
 var pictures = ["PDA_EMAIL","PDA_MOBIL","PDA_TELEFON","PDA_OSOBA","PDA_ADRESA","PDA_WWW","PDA_SKYPE","PDA_TWITTER"]; // poradi dle typu
 var titles = ["email","mobil","telefon","osoba","adresa","www","skype","twitter"]; // poradi dle typu
 var images = ["ODEBRAT","PDA_EMAIL","PDA_SMAZAT"];
+
+function getModuleId(){
+    return '@@MODULE_ID@@'.replace(/@@/g,'').replace(/MODULE_ID/g,'0');
+}
 
 function cancelSaveRow(id, data_type){
     $(id).parent().prev().show();
@@ -568,7 +578,7 @@ function initDocs(){
             params = tmp._params;
         };
         var fce = tmp._callbackFce;
-        nAjax('web_redir','&aparameters=akod_r:'+acall+'&aparameters=spouzetelo:1'+params, function(data, tmpc, fce){
+        nAjax('web_redir','&aparameters=akod_r:'+acall+'&aparameters=module_id:'+getModuleId()+'&aparameters=spouzetelo:1'+params, function(data, tmpc, fce){
             var afield = tmpc._field;
             var amulti = tmpc._multi;            
             var afield_ref_val = tmpc._field_ref_val;
@@ -589,8 +599,9 @@ function initDocs(){
                     setValue(v, v_ref, tmpc);
                     break;
                 case 2: 
-                    for (var i=0;i<data_fmt.length;i++){
-                        var tmp = data_fmt[i];
+                    var data = data_fmt.data;
+                    for (var i=0;i<data.length;i++){
+                        var tmp = data[i];
                         var v = decodeURIComponent(tmp[afield]);
                         var v_ref = "";
                         if(afield_ref_val !== null){
@@ -600,8 +611,9 @@ function initDocs(){
                     }
                     break;
                 case 3:
-                    for (var i=0;i<data_fmt.length;i++){
-                        var tmp = data_fmt[i];
+                    var data = data_fmt.data;
+                    for (var i=0;i<data.length;i++){
+                        var tmp = data[i];
                         var v_ref = "";
                         if(afield_ref_val !== null){
                             v_ref = decodeURIComponent(tmp[afield_ref_val]);
@@ -609,10 +621,10 @@ function initDocs(){
                         setValue(tmp, v_ref, tmpc);
                     }
                     if(alistview_footer !== undefined){
-                        eval(tmpc._listview_footer+'(aid, data_fmt, tmpc)');
+                        eval(tmpc._listview_footer+'(aid, data, tmpc)');
                     }
                     if(alistview_header !== undefined){
-                        eval(tmpc._listview_header+'(aid, data_fmt, tmpc)');
+                        eval(tmpc._listview_header+'(aid, data, tmpc)');
                     }                    
                     break;
             }
@@ -841,4 +853,4 @@ function changeButtonsCLToolbar(obj){
     }
 }
 
-// --------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
