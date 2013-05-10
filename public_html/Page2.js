@@ -4,6 +4,24 @@
  */
 
 // FUNCTION FOR CONTROLLERS
+function setDateEvents(){
+    nAjax('web_redir', '&aparameters=akod_r:web_mvc_date_udal_json&aparameters=spouzetelo:1', function(data){
+        var data_fmt = $.parseJSON(data);
+        var state = decodeURIComponent(data_fmt.state);
+        var message = decodeURIComponent(data_fmt.message);
+        if (state === '1'){
+            var date = decodeURIComponent( data_fmt.date );
+            var datefrom = decodeURIComponent( data_fmt.datefrom );
+            var dateto = decodeURIComponent( data_fmt.dateto );
+            $('#eventDate').val(date);
+            $('#eventFrom').val(datefrom);
+            $('#eventTo').val(dateto);
+        }else{
+            alert('Při nastavení datumu došlo k chybě.\n\n'+message);
+        }
+    });    
+}
+
 function initComboPerson(){
     nAjax('web_redir', '&aparameters=akod_r:web_mvc_udaje_os_ukol_json&aparameters=spouzetelo:1', function(data){
         var data_fmt = $.parseJSON(data);
@@ -24,6 +42,27 @@ function initComboPerson(){
     });
 }
 
+function initComboEventPerson(){
+    nAjax('web_redir', '&aparameters=akod_r:web_mvc_udaje_os_ukol_json&aparameters=spouzetelo:1', function(data){
+        var data_fmt = $.parseJSON(data);
+        var state = decodeURIComponent(data_fmt.state);
+        var message = decodeURIComponent(data_fmt.message);
+        if (state === '1'){
+            var records = data_fmt.records;
+            var str = '<option>Účastníci<\/option>';
+            for (var i = 0; i < records.length; i++){
+                var code = decodeURIComponent(records[i].code);
+                var name = decodeURIComponent(records[i].name);
+                str += '<option value="'+code+'">'+name+'</option>';
+            }
+            $('#eventPerson').html(str);
+            $('#eventPerson').selectmenu('refresh', 'true');
+        }else{
+            alert('Při plnění nabídky pověřená osoba došlo k chybě.\n\n'+message);
+        }
+    });
+}
+
 function deleteNewTask(obj){
     $(obj).closest('li').remove();
     refreshListview($(obj).closest('div[data-role="collapsible"]'));
@@ -35,6 +74,17 @@ function verifyTask(){
     if ($('#taskDescription').val().length === 0 && err === 0){ err = 1; alert('Zadejte text'); $('#taskDescription').focus(); };
     if ($('#taskDate').val().length === 0 && err === 0){ err = 1; alert('Zadejte datum'); $('#taskDate').focus(); };
     if ($('#taskPerson').val().length === 0 && err === 0){ err = 1; alert('Zadejte osobu'); $('#taskPerson').focus(); };
+    return err = err === 1 ? 0 : 1;
+}
+
+function verifyEvent(){
+    var err = 0;
+    if ($('#eventDate').val().length === 0 && err === 0){ err = 1; alert('Zadejte datum'); $('#eventDate').focus(); };
+    if ($('#eventFrom').val().length === 0 && err === 0){ err = 1; alert('Zadejte čas od'); $('#eventFrom').focus(); };
+    if ($('#eventTo').val().length === 0 && err === 0){ err = 1; alert('Zadejte čas do'); $('#eventTo').focus(); };
+    if ($('#eventSubject').val().length === 0 && err === 0){ err = 1; alert('Zadejte předmět'); $('#eventSubject').focus(); };
+    if ($('#eventDescription').val().length === 0 && err === 0){ err = 1; alert('Zadejte poznámku'); $('#eventDescription').focus(); };
+    if ($('#eventPerson').val().length === 0 && err === 0){ err = 1; alert('Zadejte osobu'); $('#eventPerson').focus(); };
     return err = err === 1 ? 0 : 1;
 }
 
@@ -62,8 +112,34 @@ function postNewTask(obj){
     };
 }
 
+function postNewEvent(obj){
+    if (verifyEvent() === 1){
+        nAjax('web_redir', 
+              '&aparameters=akod_r:web_mvc_crm_k_udal_ins_json'+
+              '&aparameters=spouzetelo:1'+
+              '&aparameters=subject:'+$('#eventSubject').val()+
+              '&aparameters=description:'+$('#eventDescription').val()+
+              '&aparameters=date:'+$('#eventDate').val()+
+              '&aparameters=datefrom:'+$('#eventFrom').val()+
+              '&aparameters=dateto:'+$('#eventTo').val()+
+              '&aparameters=person:'+$('#eventPerson').val()+
+              '&aparameters=ident:'+$('.ref_id').val(), 
+              function(data){
+                  var data_fmt = $.parseJSON(data);
+                  var state = decodeURIComponent(data_fmt.state);
+                  var message = decodeURIComponent(data_fmt.message);
+                  if (state === '1'){
+                      changeButtonsCLToolbar2(obj);
+                      initDocs();
+                  }else{
+                      alert('Při ukládání události došlo k chybě.\n\n'+message);
+                  }
+        });
+    };
+}
+
 function tasksNewRecord(obj){
-    var tmp = '<li class="newTask">'+
+    var tmp = '<li class="newForm newTask">'+
                 //'<a href="javascript:void(0);">'+
                 '<table class="table_data">'+
                     '<tr><td><label for="taskSubject">Předmět:<\/label><input type="text" id="taskSubject" \/><\/td><\/tr>'+
@@ -82,7 +158,7 @@ function tasksNewRecord(obj){
 }
 
 function eventsNewRecord(obj){
-    var tmp = '<li class="newTask">'+
+    var tmp = '<li class="newForm newEvent">'+
                 //'<a href="javascript:void(0);">'+
                 '<table class="table_data">'+
                     '<tr><td><label for="eventDate">Datum:<\/label><input type="date" id="eventDate" \/><\/td><\/tr>'+                        
@@ -90,25 +166,22 @@ function eventsNewRecord(obj){
                     '<tr><td><label for="eventTo">Do:<\/label><input type="date" id="eventTo" \/><\/td><\/tr>'+                    
                     '<tr><td><label for="eventSubject">Předmět:<\/label><input type="text" id="eventSubject" \/><\/td><\/tr>'+
                     '<tr><td><label for="eventDescription">Poznámka:<\/label><textarea cols="40" rows="8" id="eventDescription"><\/textarea><\/td><\/tr>'+
-                    '<tr><td><div data-role="fieldcontain">'+
-                                '<label for="taskPersons" class="select">Účastníci:</label>'+
-                                '<select name="taskPersons" id="taskPersons" multiple="multiple" data-native-menu="false">'+
-                                    '<option>Účastníci<\/option>'+
-                                    '<option value="standard">Standard: 7 day<\/option>'+
-                                    '<option value="rush">Rush: 3 days<\/option>'+
-                                    '<option value="express">Express: next day<\/option>'+
-                                    '<option value="overnight">Overnight<\/option>'+
+                    '<tr><td>'+
+                                '<label for="eventPerson" class="select">Účastníci:</label>'+
+                                '<select name="eventPerson" id="eventPerson" multiple="multiple" data-native-menu="false">'+
+                                    '<option>Účastníci&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<\/option>'+
                                 '<\/select>'+
-                             '<\/div><\/td><\/tr>'+
+                             '<\/td><\/tr>'+
                 '<\/table>'+
                 //'<\/a>'+
                 '<script type="text\/javascript">'+
-                    '$(".newTask").parent().find(".bt_save").bind("click", function(){postNewTask(this);});'+
-                    'initComboPerson();'+
+                    '$(".newEvent").parent().find(".bt_save").bind("click", function(){postNewEvent(this);});'+
+                    'initComboEventPerson();'+
                 '<\/script>'+
               '<\/li>';
     $(obj).closest('li').before(tmp).trigger('create');
     refreshListview($(obj).closest('div[data-role="collapsible"]'));
+    setDateEvents();
 }
 
 function saveRow(obj, data_type){

@@ -804,11 +804,11 @@ function changeButtonsCLToolbar2(obj){
         $(obj).closest('table').parent().find('.bt_new').closest('table').show();
         $(obj).closest('table').parent().find('.bt_next').closest('table').show();
         if($(obj).hasClass("bt_save")){
-            $('.newTask').remove();
+            $('.newForm').remove();
             refreshListview($(obj).closest('div[data-role="collapsible"]'));
         }
         if($(obj).hasClass("bt_cancel")){
-            $('.newTask').remove();
+            $('.newForm').remove();
             refreshListview($(obj).closest('div[data-role="collapsible"]'));           
         }
     }
