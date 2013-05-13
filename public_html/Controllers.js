@@ -90,8 +90,8 @@ function getParam(name) {
 
 function goToPageWithParams(call, params){
     var str = "";
-    var tmp = params.replace(/ap=/g,'');   
-    while(tmp.indexOf('&') > 0){
+    var tmp = params.replace(/ap=/g,'');
+    while(tmp.indexOf('&') > -1){
         var val = tmp.substr(0, tmp.indexOf('&'));
         str += '  <input type="hidden" name="ap" value="'+val+'">';
         tmp = tmp.substr(tmp.indexOf('&') + 1);
@@ -769,7 +769,7 @@ function setListviewFooterDataInsert(id, data, cs){
                     break;
                 case 2:
                     var functionNewRecord = decodeURIComponent(data[i].functionNewRecord);
-                    var functionNextRecords = decodeURIComponent(data[i].functionNextRecords);
+                    var functionNextRecords = decodeURIComponent(data[i].functionNextRecord);
                     content = '<div>'+
                               '  <table style="width: 100%"><tr>'+
                               '    <td style="width: 50%"><a href="#" style="width: 100%" data-icon="plus" data-inline="true" data-role="button" class="bt_new" onclick="changeButtonsCLToolbar2(this);'+functionNewRecord+'(this);" title="Nový záznam">Přidat</a></td>'+

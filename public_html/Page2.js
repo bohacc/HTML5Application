@@ -157,6 +157,10 @@ function tasksNewRecord(obj){
     refreshListview($(obj).closest('div[data-role="collapsible"]'));
 }
 
+function eventsNextRecord(obj){
+    goToPageWithParams('web_redir_backend', '&ap=akod_r:CRM_KONTAKTY_PDA_PAGE4&ap=apartner:'+getParam('apartner'));
+}
+
 function eventsNewRecord(obj){
     var tmp = '<li class="newForm newEvent">'+
                 //'<a href="javascript:void(0);">'+
