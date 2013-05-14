@@ -1,4 +1,4 @@
-/* Unit for init page 1
+/* Unit for init page 1 - Search CRM contacts
  * Author: Martin Boháč
  * Company: Notia
  */

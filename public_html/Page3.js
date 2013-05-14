@@ -1,4 +1,4 @@
-/* Unit for init page 3
+/* Unit for init page 3 - Record CRM contacts
  * Author: Martin Boháč
  * Company: Notia
  */

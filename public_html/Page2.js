@@ -1,4 +1,4 @@
-/* Unit for init page 2
+/* Unit for init page 2 - Sumary CRM contacts
  * Author: Martin Boháč
  * Company: Notia
  */
@@ -136,6 +136,10 @@ function postNewEvent(obj){
                   }
         });
     };
+}
+
+function tasksNextRecord(obj){
+    goToPageWithParams('web_redir_backend', '&ap=akod_r:CRM_KONTAKTY_PDA_PAGE5&ap=apartner:'+getParam('apartner'));
 }
 
 function tasksNewRecord(obj){
