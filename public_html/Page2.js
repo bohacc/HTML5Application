@@ -143,15 +143,9 @@ function tasksNextRecord(obj){
 }
 
 function tasksNewRecord(obj){
+    var newTask = $('#newTask').html();
     var tmp = '<li class="newForm newTask">'+
-                //'<a href="javascript:void(0);">'+
-                '<table class="table_data">'+
-                    '<tr><td><label for="taskSubject">Předmět:<\/label><input type="text" id="taskSubject" \/><\/td><\/tr>'+
-                    '<tr><td><label for="taskDescription">Text:<\/label><textarea cols="40" rows="8" id="taskDescription"><\/textarea><\/td><\/tr>'+
-                    '<tr><td><label for="taskDate">Termín splnění:<\/label><input type="date" id="taskDate" \/><\/td><\/tr>'+                    
-                    '<tr><td><label for="taskPerson">Osoba:<\/label><select id="taskPerson"><option value="" \/><\/select><\/td><\/tr>'+
-                '<\/table>'+
-                //'<\/a>'+
+                newTask+
                 '<script type="text\/javascript">'+
                     '$(".newTask").parent().find(".bt_save").bind("click", function(){postNewTask(this);});'+
                     'initComboPerson();'+
@@ -166,22 +160,9 @@ function eventsNextRecord(obj){
 }
 
 function eventsNewRecord(obj){
+    var newEvent = $('#newEvent').html();
     var tmp = '<li class="newForm newEvent">'+
-                //'<a href="javascript:void(0);">'+
-                '<table class="table_data">'+
-                    '<tr><td><label for="eventDate">Datum:<\/label><input type="date" id="eventDate" \/><\/td><\/tr>'+                        
-                    '<tr><td><label for="eventFrom">Od:<\/label><input type="date" id="eventFrom" \/><\/td><\/tr>'+
-                    '<tr><td><label for="eventTo">Do:<\/label><input type="date" id="eventTo" \/><\/td><\/tr>'+                    
-                    '<tr><td><label for="eventSubject">Předmět:<\/label><input type="text" id="eventSubject" \/><\/td><\/tr>'+
-                    '<tr><td><label for="eventDescription">Poznámka:<\/label><textarea cols="40" rows="8" id="eventDescription"><\/textarea><\/td><\/tr>'+
-                    '<tr><td>'+
-                                '<label for="eventPerson" class="select">Účastníci:</label>'+
-                                '<select name="eventPerson" id="eventPerson" multiple="multiple" data-native-menu="false">'+
-                                    '<option>Účastníci&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<\/option>'+
-                                '<\/select>'+
-                             '<\/td><\/tr>'+
-                '<\/table>'+
-                //'<\/a>'+
+                newEvent+
                 '<script type="text\/javascript">'+
                     '$(".newEvent").parent().find(".bt_save").bind("click", function(){postNewEvent(this);});'+
                     'initComboEventPerson();'+

@@ -281,7 +281,7 @@ function clearCallsStack(){
 
 function CallStack(aid, ads, afield, atype, amulti, aparams, acallbackFce, 
                    arow_events, afield_ref_val, anested_fields, asave,
-                   alistview_footer, alistview_header){
+                   alistview_footer, alistview_header, arow_markup){
     this._id = aid;
     this._ds = ads;
     this._field = afield;
@@ -297,6 +297,7 @@ function CallStack(aid, ads, afield, atype, amulti, aparams, acallbackFce,
     this._page_ref_val = null;
     this._listview_footer = alistview_footer;
     this._listview_header = alistview_header;
+    this._row_markup = arow_markup === undefined ? "" : arow_markup;
 }
 
 function CallStackSave(aid, afield, atable, afield_ref, aref_val){
@@ -409,6 +410,7 @@ function setValue(v, ref_val, cs){
         aref_val_hidden = "";
         aref_val_id = "";
         str = '<ul data-role="listview" id="id_'+rnd+'">';
+        var row_ident_html = "";
         for(var i=0;i<r_rows.length;i++){
             var row = r_rows[i];
             var fields = [];
@@ -423,25 +425,29 @@ function setValue(v, ref_val, cs){
                     var data_type = row[fields[j]+"_data_type"];
                     var db_field = row[fields[j]+"_field"];
                     var class_hide = "";
-                    if(data_type !== undefined){
-                        adata_type_row = data_type;
-                    }
-                    c++;
-                    class_col = cl_name + '_col' + c;
-                    if(c >= cols){
-                        c = 0;
-                        cleaner = '<div class="cleaner">&nbsp;</div>';
+                    if (fields[j] === 'ident'){
+                        row_ident_html = '<input class="ident" type="hidden" name="ap" value="'+row[fields[j]]+'" />';
                     }else{
-                        cleaner = '';
-                    }
-                    if(tmp !== "" || data_type !== undefined){
-                        //setRowEvents(row_events, ref_val_id);//!!!!!!
-                        class_hide = tmp === "" ? "hidex" : "";
-                        content_row += '<div data-role="fieldcontain" class="row_data_item '+class_hide+' '+class_col+'">'+
-                                       '    <div class="data_value">'+tmp+'</div>'+
-                                       '    <input type="hidden" name="ap" value="'+db_field+'" />'+
-                                       '</div>'+
-                                       cleaner;
+                        if(data_type !== undefined){
+                            adata_type_row = data_type;
+                        }
+                        c++;
+                        class_col = cl_name + '_col' + c;
+                        if(c >= cols){
+                            c = 0;
+                            cleaner = '<div class="cleaner">&nbsp;</div>';
+                        }else{
+                            cleaner = '';
+                        }
+                        if(tmp !== "" || data_type !== undefined){
+                            //setRowEvents(row_events, ref_val_id);//!!!!!!
+                            class_hide = tmp === "" ? "hidex" : "";
+                            content_row += '<div data-role="fieldcontain" class="row_data_item '+class_hide+' '+class_col+'">'+
+                                           '    <div class="data_value">'+tmp+'</div>'+
+                                           '    <input type="hidden" name="ap" value="'+db_field+'" />'+
+                                           '</div>'+
+                                           cleaner;
+                        }
                     }
                 }
                 if(content_row !== ""){
@@ -454,12 +460,19 @@ function setValue(v, ref_val, cs){
                                       ' <td class="tab_3 td_delete">&nbsp;</td>'+
                                       '</tr></table>';
                     }
-                    str += '<li data-icon="false" data-role="fieldcontain">'+ 
-                           '  <a href="javascript:void(0);">'+
-                           content_row+
-                           '  </a>'+
-                           aref_val_hidden+
-                           '</li>';                
+                    if (cs._row_markup.length > 0){
+                        str += '<li data-icon="false" data-role="fieldcontain">'+
+                               cs._row_markup.replace(/@@CONTENT@@/g, content_row)+
+                               aref_val_hidden+
+                               row_ident_html+
+                               '</li>';                                        
+                    }else{
+                        str += '<li data-icon="false" data-role="fieldcontain">'+
+                               content_row+
+                               aref_val_hidden+
+                               row_ident_html+
+                               '</li>';                
+                    }
                 }
             }
         }
@@ -526,6 +539,9 @@ function setAttribute(id, metadata, type, multi){
             case "listview_header":
                 cs._listview_header = v;
                 break;            
+            case "row_markup":
+                cs._row_markup = v;
+                break;
         }
         // set javascript actions to object
         if(p.substr(0,4) === "set_"){
