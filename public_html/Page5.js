@@ -66,7 +66,7 @@ $(document).bind('pageinit', function(event){
     regCtrl('#header', 3, ['ds:web_ukoly_seznam_json', 'ds_par:&aparameters=apartner:'+getParam('apartner'), 'field:ident_nazev', 'field_ref_val:ident']);
     regCtrl('#cl_ukoly',
             4,
-            ['ds:web_ukoly_seznam_json',
+            ['ds:web_ukoly_seznam2_json',
              'ds_par:&aparameters=apartner:'+getParam('apartner'),
              'field_ref_val:ident',
              'row_markup:'+row_markup,

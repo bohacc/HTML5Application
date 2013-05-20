@@ -68,7 +68,7 @@ $(document).bind('pageinit', function(event){
     regCtrl('#header', 3, ['ds:web_udalosti_seznam_json', 'ds_par:&aparameters=apartner:'+getParam('apartner'), 'field:ident_nazev', 'field_ref_val:ident']);
     regCtrl('#cl_udalosti',
             4,
-            ['ds:web_udalosti_seznam_json',
+            ['ds:web_udalosti_seznam2_json',
              'ds_par:&aparameters=apartner:'+getParam('apartner'),
              'field_ref_val:ident',
              'row_markup:'+row_markup,
