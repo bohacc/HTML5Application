@@ -47,12 +47,12 @@
         };
       };    
     
-
 $(document).delegate('div[data-role=page]', 'pageshow', function() {
     var theme = $.mobile.loadingMessageTheme;
     var msgText = "načítám...";    
     $.mobile.showPageLoadingMsg(theme, msgText, false);
 });
+
 
 $(document).bind('pageinit', function(){    
     try {  
@@ -159,7 +159,7 @@ function setPageContent(){
 function initPage(p){
     page = p;
     setPageHead(p);
-    setPageFoot(p);
+    setPageFoot(p);    
     setPageContent(p);
     // recreate page with new content
     $('div[data-role="page"]').trigger('pagecreate');
