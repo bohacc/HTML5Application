@@ -281,7 +281,8 @@ function clearCallsStack(){
 
 function CallStack(aid, ads, afield, atype, amulti, aparams, acallbackFce, 
                    arow_events, afield_ref_val, anested_fields, asave,
-                   alistview_footer, alistview_header, arow_markup){
+                   alistview_footer, alistview_header, arow_markup, arow_data_icon,
+                   arow_markup_for_item, arow_markup_for_item_call){
     this._id = aid;
     this._ds = ads;
     this._field = afield;
@@ -298,6 +299,9 @@ function CallStack(aid, ads, afield, atype, amulti, aparams, acallbackFce,
     this._listview_footer = alistview_footer;
     this._listview_header = alistview_header;
     this._row_markup = arow_markup === undefined ? "" : arow_markup;
+    this._row_data_icon = arow_data_icon === undefined ? "" : arow_data_icon;
+    this._row_markup_for_item = arow_markup_for_item === undefined ? "" : arow_markup_for_item;
+    this._row_markup_for_item_call = arow_markup_for_item_call === undefined ? "" : arow_markup_for_item_call;
 }
 
 function CallStackSave(aid, afield, atable, afield_ref, aref_val){
@@ -461,16 +465,30 @@ function setValue(v, ref_val, cs){
                                       '</tr></table>';
                     }
                     if (cs._row_markup.length > 0){
-                        str += '<li data-icon="false" data-role="fieldcontain">'+
-                               cs._row_markup.replace(/@@CONTENT@@/g, content_row)+
+                        var data_icon = cs._row_data_icon.length > 0 ? cs._row_data_icon : 'false';
+                        var row_markup_for_items = cs._row_markup_for_item.length > 0 ? cs._row_markup_for_item.split(',') : [];
+                        var row_markup_for_item_calls = cs._row_markup_for_item_call.length > 0 ? cs._row_markup_for_item_call.split(',') : [];
+                        var markup = cs._row_markup;
+
+                        if(row_markup_for_items.indexOf(r_rownum) > 0){
+                            markup = markup.replace(/@@CALL@@/g, row_markup_for_item_calls[row_markup_for_items.indexOf(r_rownum)]);
+                        }else{
+                            markup = markup.replace(/@@CALL@@/g, '');
+                            data_icon = 'false';
+                        }
+                                       
+                        str += '<li data-icon="'+data_icon+'" data-role="fieldcontain">'+
+                               markup.replace(/@@CONTENT@@/g, content_row)+
                                aref_val_hidden+
                                row_ident_html+
                                '</li>';                                        
                     }else{
                         str += '<li data-icon="false" data-role="fieldcontain">'+
+                               '<a href="javascript:void(0)">'+
                                content_row+
                                aref_val_hidden+
                                row_ident_html+
+                               '</a>'+
                                '</li>';                
                     }
                 }
@@ -541,6 +559,15 @@ function setAttribute(id, metadata, type, multi){
                 break;            
             case "row_markup":
                 cs._row_markup = v;
+                break;
+            case "row_data_icon":
+                cs._row_data_icon = v;
+                break;
+            case "row_markup_for_item":
+                cs._row_markup_for_item = v;
+                break;
+            case "row_markup_for_item_call":
+                cs._row_markup_for_item_call = v;
                 break;
         }
         // set javascript actions to object

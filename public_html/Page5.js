@@ -25,7 +25,7 @@ function showDetailTask(obj){
         $(obj).parent()
                   .find('.taskDetail')
                   .slideUp(500, function() { $(this).remove(); });
-        $(obj).attr('data-icon', 'arrow-d')
+        $(obj).closest('li').attr('data-icon', 'arrow-d')
                   .find('.ui-icon')
                   .addClass('ui-icon-' + 'arrow-d')
                   .removeClass('ui-icon-' + 'arrow-u');
@@ -33,20 +33,24 @@ function showDetailTask(obj){
         $(obj).after('<div class="taskDetail nodelete" style="display:none"></div>');
         $('ul').find('.taskDetail').slideUp(500, function() { 
             if( !$(this).hasClass('nodelete') ) { 
+                $(this).closest('li').attr('data-icon', 'arrow-u')
+                    .find('.ui-icon')
+                    .addClass('ui-icon-' + 'arrow-u')
+                    .removeClass('ui-icon-' + 'arrow-d');
                 $(this).remove(); 
             } 
         });
         
         var tmp = $(obj).parent().find('.taskDetail');
         
-        tmp.append($('#newTask').html())
+        tmp.append($('#newTaskReadOnly').html())
         
         initTaskRecord(obj);
    
         tmp.slideDown(600) // musi byt vetsi cas nez slideUp
            .removeClass('nodelete');
    
-        $(obj).attr('data-icon', 'arrow-u')
+        $(obj).closest('li').attr('data-icon', 'arrow-u')
                   .find('.ui-icon')
                   .addClass('ui-icon-' + 'arrow-u')
                   .removeClass('ui-icon-' + 'arrow-d');

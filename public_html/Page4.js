@@ -27,28 +27,32 @@ function showDetailEvent(obj){
         $(obj).parent()
                   .find('.eventDetail')
                   .slideUp(500, function() { $(this).remove(); });
-        $(obj).attr('data-icon', 'arrow-d')
+        $(obj).closest('li').attr('data-icon', 'arrow-d')
                   .find('.ui-icon')
                   .addClass('ui-icon-' + 'arrow-d')
                   .removeClass('ui-icon-' + 'arrow-u');
     }else{
         $(obj).after('<div class="eventDetail nodelete" style="display:none"></div>');
         $('ul').find('.eventDetail').slideUp(500, function() { 
-            if( !$(this).hasClass('nodelete') ) { 
+            if( !$(this).hasClass('nodelete') ) {
+                $(this).closest('li').attr('data-icon', 'arrow-u')
+                    .find('.ui-icon')
+                    .addClass('ui-icon-' + 'arrow-u')
+                    .removeClass('ui-icon-' + 'arrow-d');
                 $(this).remove(); 
             } 
         });
         
         var tmp = $(obj).parent().find('.eventDetail');
         
-        tmp.append($('#newEvent').html())
+        tmp.append($('#newEventReadOnly').html())
         
         initEventRecord(obj);
    
         tmp.slideDown(600) // musi byt vetsi cas nez slideUp
            .removeClass('nodelete');
    
-        $(obj).attr('data-icon', 'arrow-u')
+        $(obj).closest('li').attr('data-icon', 'arrow-u')
                   .find('.ui-icon')
                   .addClass('ui-icon-' + 'arrow-u')
                   .removeClass('ui-icon-' + 'arrow-d');
@@ -61,7 +65,7 @@ $(document).bind('pageinit', function(event){
     page = new Page(4);
     initPage(page);
     
-    var row_markup = '<a href="javascript:void(0);" data-icon="arrow-d" onclick="showDetailEvent(this)">'+
+    var row_markup = '<a href="javascript:void(0);" onclick="showDetailEvent(this)">'+
                      '@@CONTENT@@'+
                      '</a>';
     
@@ -72,6 +76,7 @@ $(document).bind('pageinit', function(event){
              'ds_par:&aparameters=apartner:'+getParam('apartner'),
              'field_ref_val:ident',
              'row_markup:'+row_markup,
+             'row_data_icon:arrow-d',
              'nested_fields:pole1;pole2;pole3;pole4;ident']);
 
     initDocs();
