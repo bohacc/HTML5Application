@@ -35,10 +35,10 @@ function showDetailEvent(obj){
         $(obj).after('<div class="eventDetail nodelete" style="display:none"></div>');
         $('ul').find('.eventDetail').slideUp(500, function() { 
             if( !$(this).hasClass('nodelete') ) {
-                $(this).closest('li').attr('data-icon', 'arrow-u')
+                $(this).closest('li').attr('data-icon', 'arrow-d')
                     .find('.ui-icon')
-                    .addClass('ui-icon-' + 'arrow-u')
-                    .removeClass('ui-icon-' + 'arrow-d');
+                    .addClass('ui-icon-' + 'arrow-d')
+                    .removeClass('ui-icon-' + 'arrow-u');
                 $(this).remove(); 
             } 
         });

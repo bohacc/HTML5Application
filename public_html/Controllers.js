@@ -474,7 +474,7 @@ function setValue(v, ref_val, cs){
                             markup = markup.replace(/@@CALL@@/g, row_markup_for_item_calls[row_markup_for_items.indexOf(r_rownum)]);
                         }else{
                             markup = markup.replace(/@@CALL@@/g, '');
-                            data_icon = 'false';
+                            data_icon = cs._row_markup_for_item.length > 0 ? 'false' : data_icon;
                         }
                                        
                         str += '<li data-icon="'+data_icon+'" data-role="fieldcontain">'+

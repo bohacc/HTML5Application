@@ -33,10 +33,10 @@ function showDetailTask(obj){
         $(obj).after('<div class="taskDetail nodelete" style="display:none"></div>');
         $('ul').find('.taskDetail').slideUp(500, function() { 
             if( !$(this).hasClass('nodelete') ) { 
-                $(this).closest('li').attr('data-icon', 'arrow-u')
+                $(this).closest('li').attr('data-icon', 'arrow-d')
                     .find('.ui-icon')
-                    .addClass('ui-icon-' + 'arrow-u')
-                    .removeClass('ui-icon-' + 'arrow-d');
+                    .addClass('ui-icon-' + 'arrow-d')
+                    .removeClass('ui-icon-' + 'arrow-u');
                 $(this).remove(); 
             } 
         });
@@ -74,6 +74,7 @@ $(document).bind('pageinit', function(event){
              'ds_par:&aparameters=apartner:'+getParam('apartner'),
              'field_ref_val:ident',
              'row_markup:'+row_markup,
+             'row_data_icon:arrow-d',
              'nested_fields:pole1;pole2;ident']);
 
     initDocs();
