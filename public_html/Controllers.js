@@ -72,6 +72,9 @@ $(document).bind('pageinit', function(){
     }; 
 });
 
+function getNextRowsAmount(){
+  return 2; 
+}
     
 function getParam(name) {
   var searchString = window.location.search.substring(1);
@@ -187,6 +190,7 @@ function onInputChange(obj){
 // ----------------------------------------------------------------------------
 
 var callsStack = [];
+var callsStackPaging = [];
 var callsStackSave = [];
 var page = null;
 
@@ -201,6 +205,10 @@ function getModuleId(){
 function cancelSaveRow(id, data_type){
     $(id).parent().prev().show();
     $(id).parent().remove();
+}
+
+function setCallsStackPagingPage(stack){
+    stack[0]._page += 1;
 }
 
 function getEditRowCL(data_type){
@@ -282,7 +290,8 @@ function clearCallsStack(){
 function CallStack(aid, ads, afield, atype, amulti, aparams, acallbackFce, 
                    arow_events, afield_ref_val, anested_fields, asave,
                    alistview_footer, alistview_header, arow_markup, arow_data_icon,
-                   arow_markup_for_item, arow_markup_for_item_call){
+                   arow_markup_for_item, arow_markup_for_item_call,
+                   acall_for_next_rows){
     this._id = aid;
     this._ds = ads;
     this._field = afield;
@@ -302,6 +311,9 @@ function CallStack(aid, ads, afield, atype, amulti, aparams, acallbackFce,
     this._row_data_icon = arow_data_icon === undefined ? "" : arow_data_icon;
     this._row_markup_for_item = arow_markup_for_item === undefined ? "" : arow_markup_for_item;
     this._row_markup_for_item_call = arow_markup_for_item_call === undefined ? "" : arow_markup_for_item_call;
+    this._call_for_next_rows = acall_for_next_rows === undefined ? "" : acall_for_next_rows;
+    this._page = 1;
+    this._row_item = 1;
 }
 
 function CallStackSave(aid, afield, atable, afield_ref, aref_val){
@@ -344,6 +356,38 @@ function getTitle(data_type){
     return titles[data_type];
 }
 
+function getParamsCall(cs){
+    var params = "";
+    if(cs._params !== null){
+        params = cs._params;
+    };
+    if (cs._call_for_next_rows.length > 0){
+        params += '&aparameters=apage:'+cs._page;
+        params += '&aparameters=arow_item:'+cs._row_item;
+    }
+    return params;
+}
+
+function existsCall(cs){
+    var r = 0;
+    for (var i=0; i < callsStackPaging.length; i++){
+        if (callsStackPaging[i]._id === cs._id && callsStackPaging[i]._row_item === cs._row_item){
+            r = 1;
+        }
+    }
+    return r;
+}
+
+function getCurrentCallsStackPaging(id, row_item){
+    var callsStackItem = [];
+    for (var i=0; i < callsStackPaging.length; i++){
+        if (callsStackPaging[i]._id == id && callsStackPaging[i]._row_item == row_item){
+            callsStackItem.push(Object.create(callsStackPaging[i]));
+        }
+    }
+    return callsStackItem;
+}
+
 function setRowEvents(row_events, ref_val_id){
     var arow_events = "";
     if(row_events != null){
@@ -363,6 +407,17 @@ function refreshListview(id){
     }else {
         $(id).trigger('create');
     } 
+}
+
+function setListRows(cs, content, obj_ins, rownum){
+    if (rownum == cs._row_item){
+        if (cs._page > 1){
+            var tmp = $(content).hide();
+            obj_ins.find('ul').append(tmp.slideDown());
+        }else{
+            obj_ins.html(content);
+        }
+    }
 }
 
 function setValue(v, ref_val, cs){  
@@ -413,6 +468,7 @@ function setValue(v, ref_val, cs){
         var rnd = (""+Math.random()).replace(/\./g,"");
         aref_val_hidden = "";
         aref_val_id = "";
+             
         str = '<ul data-role="listview" id="id_'+rnd+'">';
         var row_ident_html = "";
         for(var i=0;i<r_rows.length;i++){
@@ -494,12 +550,26 @@ function setValue(v, ref_val, cs){
                 }
             }
         }
+        
+        // row for next records
+        if (cs._call_for_next_rows.length > 0){
+            str += '<li data-icon="false"><a href="javascript:void(0);" onclick="initDocs(1,\''+cs._id+'\','+r_rownum+');">další záznamy</a></li>';
+        }
+        
         str += '</ul>';
+        
+        // pokud se bude stránkovat a není v zásobníku, tak se přidá
+        if (cs._call_for_next_rows.length > 0 && existsCall(cs) === 0){ 
+            var cs_new = Object.create(cs);
+            cs_new._row_item = r_rownum;            
+            callsStackPaging.push(cs_new);
+        }        
+        
         j = 0;
         $(cs._id+' h3').each(function(){
             j++;
             if(parseInt(r_rownum) === j){
-                $(this).next().html(str);
+                setListRows(cs, str, $(this).next(), r_rownum);
                 //zmena caption
                 if(cl_caption !== undefined && cl_caption !== null){
                     $(this).find('.ui-btn-text').text(decodeURIComponent(cl_caption));
@@ -508,6 +578,7 @@ function setValue(v, ref_val, cs){
                 return false;
             } 
         });
+        
         //-- schovají se prázdné řádky, ktere tu jsou pouze pro editaci
         $(cs._id).find('.hidex').closest('li').hide();
         //-- recreate lisview
@@ -569,6 +640,9 @@ function setAttribute(id, metadata, type, multi){
             case "row_markup_for_item_call":
                 cs._row_markup_for_item_call = v;
                 break;
+            case "call_for_next_rows":
+                cs._call_for_next_rows = v;
+                break;
         }
         // set javascript actions to object
         if(p.substr(0,4) === "set_"){
@@ -611,15 +685,17 @@ function initSave(){
     }
 }
 
-function initDocs(){
+function initDocs(callsStackPaging, id, row_item){
     var arr = callsStack;
+    // for paging
+    if (callsStackPaging !== undefined){
+        arr = getCurrentCallsStackPaging(id, row_item);
+        setCallsStackPagingPage(arr);
+    }
     for(var i=0;i<arr.length;i++){
         var tmp = arr[i];
         var acall = tmp._ds; 
-        var params = "";
-        if(tmp._params !== null){
-            params = tmp._params;
-        };
+        var params = getParamsCall(tmp);
         var fce = tmp._callbackFce;
         nAjax('web_redir','&aparameters=akod_r:'+acall+'&aparameters=module_id:'+getModuleId()+'&aparameters=spouzetelo:1'+params, function(data, tmpc, fce){
             var afield = tmpc._field;
