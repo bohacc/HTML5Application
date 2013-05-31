@@ -410,13 +410,13 @@ function refreshListview(id){
 }
 
 function setListRows(cs, content, obj_ins, rownum){
-    if (rownum == cs._row_item){
-        if (cs._page > 1){
-            var tmp = $(content).hide();
-            obj_ins.find('ul').append(tmp.slideDown());
-        }else{
-            obj_ins.html(content);
+    if (cs._call_for_next_rows.length > 0 && cs._page > 1){
+        if (rownum == cs._row_item) {
+            var tmp = $(content).find('li.data');
+            obj_ins.find('.button_next_rows').before(tmp.slideDown()).trigger('create');       
         }
+    }else{
+        obj_ins.html(content);
     }
 }
 
@@ -533,13 +533,13 @@ function setValue(v, ref_val, cs){
                             data_icon = cs._row_markup_for_item.length > 0 ? 'false' : data_icon;
                         }
                                        
-                        str += '<li data-icon="'+data_icon+'" data-role="fieldcontain">'+
+                        str += '<li data-icon="'+data_icon+'" data-role="fieldcontain" class="data">'+
                                markup.replace(/@@CONTENT@@/g, content_row)+
                                aref_val_hidden+
                                row_ident_html+
                                '</li>';                                        
                     }else{
-                        str += '<li data-icon="false" data-role="fieldcontain">'+
+                        str += '<li data-icon="false" data-role="fieldcontain" class="data">'+
                                '<a href="javascript:void(0)">'+
                                content_row+
                                aref_val_hidden+
@@ -553,7 +553,7 @@ function setValue(v, ref_val, cs){
         
         // row for next records
         if (cs._call_for_next_rows.length > 0){
-            str += '<li data-icon="false"><a href="javascript:void(0);" onclick="initDocs(1,\''+cs._id+'\','+r_rownum+');">další záznamy</a></li>';
+            str += '<li data-icon="false" class="button_next_rows"><a href="javascript:void(0);" onclick="initDocs(1,\''+cs._id+'\','+r_rownum+');">další záznamy</a></li>';
         }
         
         str += '</ul>';
