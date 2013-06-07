@@ -76,6 +76,7 @@ function showDetailTask(obj){
 $(document).bind('pageinit', function(event){
     page = new Page(5);
     initPage(page);
+    setNextRowsAmount(5);
     
     var row_markup = '<a href="javascript:void(0);" data-icon="arrow-d" onclick="showDetailTask(this)">'+
                      '@@CONTENT@@'+
@@ -85,7 +86,7 @@ $(document).bind('pageinit', function(event){
     regCtrl('#cl_ukoly',
             4,
             ['ds:web_ukoly_seznam2_json',
-             'ds_par:&aparameters=apartner:'+getParam('apartner')+'&aparameters=aamount:'+getNextRowsAmount(), //+'&aparameters=acnt:1'
+             'ds_par:&aparameters=apartner:'+getParam('apartner')+'&aparameters=aamount:'+getNextRowsAmount(),
              'field_ref_val:ident',
              'row_markup:'+row_markup,
              'row_data_icon:arrow-d',

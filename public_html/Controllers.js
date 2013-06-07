@@ -71,10 +71,6 @@ $(document).bind('pageinit', function(){
 
     }; 
 });
-
-function getNextRowsAmount(){
-  return 2; 
-}
     
 function getParam(name) {
   var searchString = window.location.search.substring(1);
@@ -193,10 +189,20 @@ var callsStack = [];
 var callsStackPaging = [];
 var callsStackSave = [];
 var page = null;
+var amount = 5;
 
 var pictures = ["PDA_EMAIL","PDA_MOBIL","PDA_TELEFON","PDA_OSOBA","PDA_ADRESA","PDA_WWW","PDA_SKYPE","PDA_TWITTER"]; // poradi dle typu
 var titles = ["email","mobil","telefon","osoba","adresa","www","skype","twitter"]; // poradi dle typu
 var images = ["ODEBRAT","PDA_EMAIL","PDA_SMAZAT"];
+
+function getNextRowsAmount(){
+  amount = typeof(amount) == 'undefined' ? 5 : amount;
+  return amount; 
+}
+
+function setNextRowsAmount(acnt){
+    amount = acnt;
+}
 
 function getModuleId(){
     return '@@MODULE_ID@@'.replace(/@@/g,'').replace(/MODULE_ID/g,'0');
@@ -382,7 +388,8 @@ function getCurrentCallsStackPaging(id, row_item){
     var callsStackItem = [];
     for (var i=0; i < callsStackPaging.length; i++){
         if (callsStackPaging[i]._id == id && callsStackPaging[i]._row_item == row_item){
-            callsStackItem.push(Object.create(callsStackPaging[i]));
+            //callsStackItem.push(Object.create(callsStackPaging[i]));
+            callsStackItem.push(callsStackPaging[i]);
         }
     }
     return callsStackItem;
@@ -413,7 +420,13 @@ function setListRows(cs, content, obj_ins, rownum){
     if (cs._call_for_next_rows.length > 0 && cs._page > 1){
         if (rownum == cs._row_item) {
             var tmp = $(content).find('li.data');
-            obj_ins.find('.button_next_rows').before(tmp.slideDown()).trigger('create');       
+            var button_next = obj_ins.find('.button_next_rows');
+            if (tmp.length > 0){
+                button_next.before(tmp.slideDown())
+                             .closest('ul').listview('refresh');
+            }else{
+                button_next.hide();
+            }
         }
     }else{
         obj_ins.html(content);

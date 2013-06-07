@@ -57,6 +57,11 @@ $(document).bind('pageinit', function(event){
     page = new Page(1);
     initPage(page);
     regCtrl('#aemail',1,['set_onkeypress:emailEnter(event, this)']);
+    
+    regCtrl('#adatum', 3, ['ds:web_agenda_pda_json', 'ds_par:&aparameters=code:'+getParam('apartner'), 'field:datum']);
+    regCtrl('#acas', 3, ['ds:web_agenda_pda_json', 'ds_par:&aparameters=code:'+getParam('apartner'), 'field:cas']);
+    regCtrl('#asvatek', 3, ['ds:web_agenda_pda_json', 'ds_par:&aparameters=code:'+getParam('apartner'), 'field:svatek']);
+    
     regCtrl('#acollapsiblelist',
             2,
             ['ds:web_last_search_json',

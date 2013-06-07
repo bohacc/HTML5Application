@@ -64,8 +64,9 @@ function showDetailEvent(obj){
 $(document).bind('pageinit', function(event){
     page = new Page(4);
     initPage(page);
+    setNextRowsAmount(5);
     
-    var row_markup = '<a href="javascript:void(0);" onclick="showDetailEvent(this)">'+
+    var row_markup = '<a href="javascript:void(0);" data-icon="arrow-d" onclick="showDetailEvent(this)">'+
                      '@@CONTENT@@'+
                      '</a>';
     
@@ -73,10 +74,11 @@ $(document).bind('pageinit', function(event){
     regCtrl('#cl_udalosti',
             4,
             ['ds:web_udalosti_seznam2_json',
-             'ds_par:&aparameters=apartner:'+getParam('apartner'),
+             'ds_par:&aparameters=apartner:'+getParam('apartner')+'&aparameters=aamount:'+getNextRowsAmount(),
              'field_ref_val:ident',
              'row_markup:'+row_markup,
              'row_data_icon:arrow-d',
+             'call_for_next_rows:1',
              'nested_fields:pole1;pole2;pole3;pole4;ident']);
 
     initDocs();
