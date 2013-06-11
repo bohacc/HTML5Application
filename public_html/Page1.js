@@ -14,6 +14,10 @@ function setPageAfterSearchCallback(){
     $('#acollapsiblelist').show();
 }
 
+function anniversaryNextRecord(obj){
+    
+}
+
 function printResult(obj){
     // INICIALIZACE CONTROLLERU
     
@@ -62,12 +66,42 @@ $(document).bind('pageinit', function(event){
     regCtrl('#acas', 3, ['ds:web_agenda_pda_json', 'ds_par:&aparameters=code:'+getParam('apartner'), 'field:cas']);
     regCtrl('#asvatek', 3, ['ds:web_agenda_pda_json', 'ds_par:&aparameters=code:'+getParam('apartner'), 'field:svatek']);
     
+    regCtrl('#cl_crmkontakty', 
+            4, 
+            ['ds:web_vyroci_pda_json', 
+             'ds_par:&aparameters=adni:10&aparameters=code:'+getParam('apartner'), 
+             'field_ref_val:ident',
+             'listview_footer:setListviewFooterDataInsert',
+             'collapsible_id:avyroci',
+             'nested_fields:field_begin;datum;jmeno;udalost;field_end;ident']);
+         
+    regCtrl('#cl_udalosti',
+            4,
+            ['ds:web_udalosti_seznam2_json',
+             'ds_par:&aparameters=apartner:'+getParam('apartner')+'&aparameters=aamount:'+getNextRowsAmount(),
+             'field_ref_val:ident',
+             'listview_footer:setListviewFooterDataInsert',
+             'collapsible_id:audalosti',
+             'nested_fields:pole1;pole2;pole3;pole4;ident']);
+         
+    regCtrl('#cl_ukoly',
+            4,
+            ['ds:web_ukoly_seznam2_json',
+             'ds_par:&aparameters=apartner:'+getParam('apartner')+'&aparameters=aamount:'+getNextRowsAmount(),
+             'field_ref_val:ident',
+             'listview_footer:setListviewFooterDataInsert',
+             'collapsible_id:aukoly',
+             'nested_fields:pole1;pole2;ident']);         
+         
     regCtrl('#acollapsiblelist',
             2,
             ['ds:web_last_search_json',
              'ds_par:&aparameters=code:PDA_SEARCH',
              'row_events:["set_onclick:saveSearchText(this)"]',
              'field_ref_val:ident',
-             'field:partner_nazev']);
+             'field:partner_nazev']);         
+         
     initDocs();
+    
+    startTime('#acas');
 });

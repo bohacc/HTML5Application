@@ -71,6 +71,26 @@ $(document).bind('pageinit', function(){
 
     }; 
 });
+
+function startTime(id){
+    var today = new Date();
+    var h = today.getHours();
+    var m = today.getMinutes();
+    var s = today.getSeconds();
+    // add a zero in front of numbers<10
+    m = checkTime(m);
+    s = checkTime(s);
+    $(id).text( h + ":" + m + ":" + s );
+    t = setTimeout(function(){startTime(id)},500);
+}
+
+function checkTime(i){
+    if (i < 10){
+        i = "0" + i;
+    }
+    return i;
+}
+
     
 function getParam(name) {
   var searchString = window.location.search.substring(1);
@@ -297,7 +317,7 @@ function CallStack(aid, ads, afield, atype, amulti, aparams, acallbackFce,
                    arow_events, afield_ref_val, anested_fields, asave,
                    alistview_footer, alistview_header, arow_markup, arow_data_icon,
                    arow_markup_for_item, arow_markup_for_item_call,
-                   acall_for_next_rows){
+                   acall_for_next_rows, acollapsible_id){
     this._id = aid;
     this._ds = ads;
     this._field = afield;
@@ -320,6 +340,7 @@ function CallStack(aid, ads, afield, atype, amulti, aparams, acallbackFce,
     this._call_for_next_rows = acall_for_next_rows === undefined ? "" : acall_for_next_rows;
     this._page = 1;
     this._row_item = 1;
+    this._collapsible_id = acollapsible_id === undefined ? "" : acollapsible_id;
 }
 
 function CallStackSave(aid, afield, atable, afield_ref, aref_val){
@@ -656,6 +677,9 @@ function setAttribute(id, metadata, type, multi){
             case "call_for_next_rows":
                 cs._call_for_next_rows = v;
                 break;
+            case "collapsible_id":
+                cs._collapsible_id = v;
+                break;                
         }
         // set javascript actions to object
         if(p.substr(0,4) === "set_"){
@@ -875,12 +899,12 @@ function setListviewFooterDataInsert(id, data, cs){
     var content = "";
     if(data !== undefined){
         for(var i=0;i<data.length;i++){
-            var arows = data[i].rows;
             var type_navigator = parseInt(decodeURIComponent(data[i].type_navigator));
             type_navigator = type_navigator === null ? 0 : type_navigator;
             var p = 0;
             var current_obj = null;
-            $('div[data-role="collapsible"]').each(function(){
+            var elmt_id = cs._collapsible_id.length > 0 ? '[id="'+cs._collapsible_id+'"]' : '';
+            $('div[data-role="collapsible"]'+elmt_id).each(function(){
                 if(i === p){
                     current_obj = this;
                     return false;
@@ -909,6 +933,14 @@ function setListviewFooterDataInsert(id, data, cs){
                               '  </tr></table>'+
                               '</div>';
                     break;
+                case 3:
+                    var functionNextRecords = decodeURIComponent(data[i].functionNextRecord);
+                    content = '<div>'+
+                              '  <table style="width: 100%"><tr>'+
+                              '    <td style="width: 100%"><a href="#" style="width: 100%" data-inline="true" data-role="button" class="bt_next" onclick="'+functionNextRecords+'(this)" title="Zobrazit další úkoly">Zobrazit další</a></td>'+
+                              '  </tr></table>'+
+                              '</div>';
+                    break;                    
             }  
             content.length > 0 ? $(current_obj).find('ul').append('<li data-icon="false">'+content+'</li>').trigger('create').listview("refresh") : null;
             
