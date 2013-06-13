@@ -2,7 +2,172 @@
  *  Author: Martin Boháč
  *  Company: Notia
  */
+/* GLOBALNI MODULOVE */
+function verifyTask(){
+    var err = 0;
+    if ($('#taskSubject').val().length === 0 && err === 0){ err = 1; alert('Zadejte předmět'); $('#taskSubject').focus(); };
+    if ($('#taskDescription').val().length === 0 && err === 0){ err = 1; alert('Zadejte text'); $('#taskDescription').focus(); };
+    if ($('#taskDate').val().length === 0 && err === 0){ err = 1; alert('Zadejte datum'); $('#taskDate').focus(); };
+    if ($('#taskPerson').val().length === 0 && err === 0){ err = 1; alert('Zadejte osobu'); $('#taskPerson').focus(); };
+    return err = err === 1 ? 0 : 1;
+}
 
+function verifyEvent(){
+    var err = 0;
+    if ($('#eventDate').val().length === 0 && err === 0){ err = 1; alert('Zadejte datum'); $('#eventDate').focus(); };
+    if ($('#eventFrom').val().length === 0 && err === 0){ err = 1; alert('Zadejte čas od'); $('#eventFrom').focus(); };
+    if ($('#eventTo').val().length === 0 && err === 0){ err = 1; alert('Zadejte čas do'); $('#eventTo').focus(); };
+    if ($('#eventSubject').val().length === 0 && err === 0){ err = 1; alert('Zadejte předmět'); $('#eventSubject').focus(); };
+    if ($('#eventDescription').val().length === 0 && err === 0){ err = 1; alert('Zadejte poznámku'); $('#eventDescription').focus(); };
+    if ($('#eventPerson').val().length === 0 && err === 0){ err = 1; alert('Zadejte osobu'); $('#eventPerson').focus(); };
+    return err = err === 1 ? 0 : 1;
+}
+
+function postNewTask(obj){
+    if (verifyTask() === 1){
+        nAjax('web_redir', 
+              '&aparameters=akod_r:web_mvc_crm_k_ukol_ins_json'+
+              '&aparameters=spouzetelo:1'+
+              '&aparameters=subject:'+$('#taskSubject').val()+
+              '&aparameters=description:'+$('#taskDescription').val()+
+              '&aparameters=date:'+$('#taskDate').val()+
+              '&aparameters=person:'+$('#taskPerson').val()+
+              '&aparameters=ident:'+$('.ref_id').val(), 
+              function(data){
+                  var data_fmt = $.parseJSON(data);
+                  var state = decodeURIComponent(data_fmt.state);
+                  var message = decodeURIComponent(data_fmt.message);
+                  if (state === '1'){
+                      changeButtonsCLToolbar2(obj);
+                      initDocs();
+                  }else{
+                      alert('Při ukládání úkolu došlo k chybě.\n\n'+message);
+                  }
+        });
+    };
+}
+
+function postNewEvent(obj){
+    if (verifyEvent() === 1){
+        nAjax('web_redir', 
+              '&aparameters=akod_r:web_mvc_crm_k_udal_ins_json'+
+              '&aparameters=spouzetelo:1'+
+              '&aparameters=subject:'+$('#eventSubject').val()+
+              '&aparameters=description:'+$('#eventDescription').val()+
+              '&aparameters=date:'+$('#eventDate').val()+
+              '&aparameters=datefrom:'+$('#eventFrom').val()+
+              '&aparameters=dateto:'+$('#eventTo').val()+
+              '&aparameters=person:'+$('#eventPerson').val()+
+              '&aparameters=ident:'+$('.ref_id').val(), 
+              function(data){
+                  var data_fmt = $.parseJSON(data);
+                  var state = decodeURIComponent(data_fmt.state);
+                  var message = decodeURIComponent(data_fmt.message);
+                  if (state === '1'){
+                      changeButtonsCLToolbar2(obj);
+                      initDocs();
+                  }else{
+                      alert('Při ukládání události došlo k chybě.\n\n'+message);
+                  }
+        });
+    };
+}
+
+function setDateEvents(){
+    nAjax('web_redir', '&aparameters=akod_r:web_mvc_date_udal_json&aparameters=spouzetelo:1', function(data){
+        var data_fmt = $.parseJSON(data);
+        var state = decodeURIComponent(data_fmt.state);
+        var message = decodeURIComponent(data_fmt.message);
+        if (state === '1'){
+            var date = decodeURIComponent( data_fmt.date );
+            var datefrom = decodeURIComponent( data_fmt.datefrom );
+            var dateto = decodeURIComponent( data_fmt.dateto );
+            $('#eventDate').val(date);
+            $('#eventFrom').val(datefrom);
+            $('#eventTo').val(dateto);
+        }else{
+            alert('Při nastavení datumu došlo k chybě.\n\n'+message);
+        }
+    });    
+}
+
+function initComboPerson(){
+    nAjax('web_redir', '&aparameters=akod_r:web_mvc_udaje_os_ukol_json&aparameters=spouzetelo:1', function(data){
+        var data_fmt = $.parseJSON(data);
+        var state = decodeURIComponent(data_fmt.state);
+        var message = decodeURIComponent(data_fmt.message);
+        if (state === '1'){
+            var records = data_fmt.records;
+            var str = '<option value="">&nbsp;</option>';
+            for (var i = 0; i < records.length; i++){
+                var code = decodeURIComponent(records[i].code);
+                var name = decodeURIComponent(records[i].name);
+                str += '<option value="'+code+'">'+name+'</option>';
+            }
+            $('#taskPerson').html(str).trigger('create').trigger('refresh');
+        }else{
+            alert('Při plnění nabídky pověřená osoba došlo k chybě.\n\n'+message);
+        }
+    });
+}
+
+function initComboEventPerson(){
+    nAjax('web_redir', '&aparameters=akod_r:web_mvc_udaje_os_ukol_json&aparameters=spouzetelo:1', function(data){
+        var data_fmt = $.parseJSON(data);
+        var state = decodeURIComponent(data_fmt.state);
+        var message = decodeURIComponent(data_fmt.message);
+        if (state === '1'){
+            var records = data_fmt.records;
+            var str = '<option>Účastníci<\/option>';
+            for (var i = 0; i < records.length; i++){
+                var code = decodeURIComponent(records[i].code);
+                var name = decodeURIComponent(records[i].name);
+                str += '<option value="'+code+'">'+name+'</option>';
+            }
+            $('#eventPerson').html(str);
+            $('#eventPerson').selectmenu('refresh', 'true');
+        }else{
+            alert('Při plnění nabídky pověřená osoba došlo k chybě.\n\n'+message);
+        }
+    });
+}
+
+function tasksNextRecord(obj){
+    goToPageWithParams('web_redir_backend', '&ap=akod_r:CRM_KONTAKTY_PDA_PAGE5&ap=apartner:'+getParam('apartner'));
+}
+
+function tasksNewRecord(obj){
+    var newTask = $('#newTask').html();
+    var tmp = '<li class="newForm newTask">'+
+                newTask+
+                '<script type="text\/javascript">'+
+                    '$(".newTask").parent().find(".bt_save").bind("click", function(){postNewTask(this);});'+
+                    'initComboPerson();'+
+                '<\/script>'+
+              '<\/li>';
+    $(obj).closest('li').before(tmp).trigger('create');
+    refreshListview($(obj).closest('div[data-role="collapsible"]'));
+}
+
+function eventsNextRecord(obj){
+    goToPageWithParams('web_redir_backend', '&ap=akod_r:CRM_KONTAKTY_PDA_PAGE4&ap=apartner:'+getParam('apartner'));
+}
+
+function eventsNewRecord(obj){
+    var newEvent = $('#newEvent').html();
+    var tmp = '<li class="newForm newEvent">'+
+                newEvent+
+                '<script type="text\/javascript">'+
+                    '$(".newEvent").parent().find(".bt_save").bind("click", function(){postNewEvent(this);});'+
+                    'initComboEventPerson();'+
+                '<\/script>'+
+              '<\/li>';
+    $(obj).closest('li').before(tmp).trigger('create');
+    refreshListview($(obj).closest('div[data-role="collapsible"]'));
+    setDateEvents();
+}
+
+/* GLOBALNI UTILS */
       function nEncodeUri( str ) {
         var tmp_str = str.replace(/&aparameters=/g, '(!)').replace(/&aParameters=/g, '(!)');
         tmp_str = encodeURIComponent( tmp_str );
@@ -600,7 +765,8 @@ function setValue(v, ref_val, cs){
         }        
         
         j = 0;
-        $(cs._id+' h3').each(function(){
+        var tmp_id = cs._collapsible_id === '' ? cs._id : cs._collapsible_id;
+        $(tmp_id+' h3').each(function(){
             j++;
             if(parseInt(r_rownum) === j){
                 setListRows(cs, str, $(this).next(), r_rownum);
@@ -903,8 +1069,8 @@ function setListviewFooterDataInsert(id, data, cs){
             type_navigator = type_navigator === null ? 0 : type_navigator;
             var p = 0;
             var current_obj = null;
-            var elmt_id = cs._collapsible_id.length > 0 ? '[id="'+cs._collapsible_id+'"]' : '';
-            $('div[data-role="collapsible"]'+elmt_id).each(function(){
+            var elmt_id = cs._collapsible_id.length > 0 ? '[id="'+cs._collapsible_id.replace(/#/g,'')+'"]' : '';
+            $(cs._id+' div[data-role="collapsible"]'+elmt_id).each(function(){
                 if(i === p){
                     current_obj = this;
                     return false;
@@ -968,11 +1134,11 @@ function changeButtonsCLToolbar2(obj){
         $(obj).closest('table').parent().find('.bt_new').closest('table').show();
         $(obj).closest('table').parent().find('.bt_next').closest('table').show();
         if($(obj).hasClass("bt_save")){
-            $('.newForm').remove();
+            $(obj).closest('ul').find('.newForm').remove();
             refreshListview($(obj).closest('div[data-role="collapsible"]'));
         }
         if($(obj).hasClass("bt_cancel")){
-            $('.newForm').remove();
+            $(obj).closest('ul').find('.newForm').remove();
             refreshListview($(obj).closest('div[data-role="collapsible"]'));           
         }
     }

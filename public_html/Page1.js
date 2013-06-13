@@ -60,6 +60,8 @@ function emailEnter(event, obj){
 $(document).bind('pageinit', function(event){
     page = new Page(1);
     initPage(page);
+    setNextRowsAmount(50);
+    
     regCtrl('#aemail',1,['set_onkeypress:emailEnter(event, this)']);
     
     regCtrl('#adatum', 3, ['ds:web_agenda_pda_json', 'ds_par:&aparameters=code:'+getParam('apartner'), 'field:datum']);
@@ -72,26 +74,25 @@ $(document).bind('pageinit', function(event){
              'ds_par:&aparameters=adni:10&aparameters=code:'+getParam('apartner'), 
              'field_ref_val:ident',
              'listview_footer:setListviewFooterDataInsert',
-             'collapsible_id:avyroci',
+             'collapsible_id:#avyroci',
              'nested_fields:field_begin;datum;jmeno;udalost;field_end;ident']);
          
-    regCtrl('#cl_udalosti',
+    regCtrl('#cl_crmkontakty',
             4,
-            ['ds:web_udalosti_seznam2_json',
+            ['ds:web_udalosti_seznam3_json',
              'ds_par:&aparameters=apartner:'+getParam('apartner')+'&aparameters=aamount:'+getNextRowsAmount(),
              'field_ref_val:ident',
              'listview_footer:setListviewFooterDataInsert',
-             'collapsible_id:audalosti',
+             'collapsible_id:#audalosti',
              'nested_fields:pole1;pole2;pole3;pole4;ident']);
          
     regCtrl('#cl_ukoly',
             4,
-            ['ds:web_ukoly_seznam2_json',
+            ['ds:web_ukoly_seznam3_json',
              'ds_par:&aparameters=apartner:'+getParam('apartner')+'&aparameters=aamount:'+getNextRowsAmount(),
              'field_ref_val:ident',
              'listview_footer:setListviewFooterDataInsert',
-             'collapsible_id:aukoly',
-             'nested_fields:pole1;pole2;ident']);         
+             'nested_fields:pole1;pole2;ident']);  
          
     regCtrl('#acollapsiblelist',
             2,
