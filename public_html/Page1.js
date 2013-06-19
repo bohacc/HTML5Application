@@ -14,10 +14,6 @@ function setPageAfterSearchCallback(){
     $('#acollapsiblelist').show();
 }
 
-function anniversaryNextRecord(obj){
-    
-}
-
 function printResult(obj){
     // INICIALIZACE CONTROLLERU
     
@@ -75,7 +71,7 @@ $(document).bind('pageinit', function(event){
              'field_ref_val:ident',
              'listview_footer:setListviewFooterDataInsert',
              'collapsible_id:#avyroci',
-             'nested_fields:field_begin;datum;jmeno;udalost;field_end;ident']);
+             'nested_fields:datum;jmeno;udalost;anchor_event;ident']);
          
     regCtrl('#cl_crmkontakty',
             4,
@@ -101,7 +97,7 @@ $(document).bind('pageinit', function(event){
              'row_events:["set_onclick:saveSearchText(this)"]',
              'field_ref_val:ident',
              'field:partner_nazev']);         
-         
+                  
     initDocs();
     
     startTime('#acas');

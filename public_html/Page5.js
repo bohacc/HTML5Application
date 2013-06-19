@@ -4,20 +4,6 @@
  */
 
 // FUNCTION FOR CONTROLLERS
-/*function web_ukoly_seznam2_increment(obj){
-    nAjax('web_redir', '&aparameters=akod_r:web_ukoly_seznam2_json'+
-                       '&aparameters=spouzetelo:1'+
-                       '&aparameters=apartner:'+getParam('apartner')+
-                       '&aparameters=aamount:'+getNextRowsAmount()+
-                       '&aparameters=acnt:1', function(data){
-        var tmp = '';
-        var cnt = '2';
-        $(obj).insertBefore(tmp);
-        refreshListview('#cl_ukoly');
-        $('li .next'+cnt).slideDown();
-    });
-}*/
-
 function initTaskRecord(obj){
     var id_val = $(obj).parent().find('.ident').val();
     nAjax('web_redir', '&aparameters=akod_r:web_ukoly_zaznam_json&aparameters=spouzetelo:1&aparameters=aid:'+id_val, function(data){

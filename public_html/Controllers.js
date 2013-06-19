@@ -132,6 +132,10 @@ function initComboEventPerson(){
     });
 }
 
+function avsrNextRecord(obj){
+    goToPageWithParams('web_redir_backend', '&ap=akod_r:CRM_KONTAKTY_PDA_PAGE6&ap=apartner:'+getParam('apartner'));
+}
+
 function tasksNextRecord(obj){
     goToPageWithParams('web_redir_backend', '&ap=akod_r:CRM_KONTAKTY_PDA_PAGE5&ap=apartner:'+getParam('apartner'));
 }
@@ -665,11 +669,13 @@ function setValue(v, ref_val, cs){
         var c = 0;
         var cleaner = "";
         var rnd = (""+Math.random()).replace(/\./g,"");
+        var row_ident_html = "";
+        var anchor = "javascript:void(0)";
+        var anchor_event = "";
         aref_val_hidden = "";
         aref_val_id = "";
              
         str = '<ul data-role="listview" id="id_'+rnd+'">';
-        var row_ident_html = "";
         for(var i=0;i<r_rows.length;i++){
             var row = r_rows[i];
             var fields = [];
@@ -684,9 +690,20 @@ function setValue(v, ref_val, cs){
                     var data_type = row[fields[j]+"_data_type"];
                     var db_field = row[fields[j]+"_field"];
                     var class_hide = "";
+                    var isdata = 1;
+                    if (fields[j] === 'anchor'){
+                        anchor = decodeURIComponent(row[fields[j]]);
+                        isdata = 0;
+                    }
+                    if (fields[j] === 'anchor_event'){
+                        anchor_event = decodeURIComponent(row[fields[j]]);
+                        isdata = 0;
+                    }                    
                     if (fields[j] === 'ident'){
                         row_ident_html = '<input class="ident" type="hidden" name="ap" value="'+row[fields[j]]+'" />';
-                    }else{
+                        isdata = 0;
+                    }
+                    if (isdata === 1){
                         if(data_type !== undefined){
                             adata_type_row = data_type;
                         }
@@ -739,7 +756,7 @@ function setValue(v, ref_val, cs){
                                '</li>';                                        
                     }else{
                         str += '<li data-icon="false" data-role="fieldcontain" class="data">'+
-                               '<a href="javascript:void(0)">'+
+                               '<a href="'+anchor+'" '+anchor_event+'>'+
                                content_row+
                                aref_val_hidden+
                                row_ident_html+
@@ -756,7 +773,7 @@ function setValue(v, ref_val, cs){
         }
         
         str += '</ul>';
-        
+        //alert(str);
         // pokud se bude stránkovat a není v zásobníku, tak se přidá
         if (cs._call_for_next_rows.length > 0 && existsCall(cs) === 0){ 
             var cs_new = Object.create(cs);
@@ -1095,7 +1112,7 @@ function setListviewFooterDataInsert(id, data, cs){
                     content = '<div>'+
                               '  <table style="width: 100%"><tr>'+
                               '    <td style="width: 50%"><a href="#" style="width: 100%" data-icon="plus" data-inline="true" data-role="button" class="bt_new" onclick="changeButtonsCLToolbar2(this);'+functionNewRecord+'(this);" title="Nový záznam">Přidat</a></td>'+
-                              '    <td style="width: 50%"><a href="#" style="width: 100%" data-inline="true" data-role="button" class="bt_next" onclick="'+functionNextRecords+'(this)" title="Zobrazit další úkoly">Zobrazit další</a></td>'+
+                              '    <td style="width: 50%"><a href="#" style="width: 100%" data-inline="true" data-role="button" class="bt_next" onclick="'+functionNextRecords+'(this)" title="Zobrazit další">Zobrazit další</a></td>'+
                               '  </tr></table>'+
                               '</div>';
                     break;
@@ -1103,7 +1120,7 @@ function setListviewFooterDataInsert(id, data, cs){
                     var functionNextRecords = decodeURIComponent(data[i].functionNextRecord);
                     content = '<div>'+
                               '  <table style="width: 100%"><tr>'+
-                              '    <td style="width: 100%"><a href="#" style="width: 100%" data-inline="true" data-role="button" class="bt_next" onclick="'+functionNextRecords+'(this)" title="Zobrazit další úkoly">Zobrazit další</a></td>'+
+                              '    <td style="width: 100%"><a href="#" style="width: 100%" data-inline="true" data-role="button" class="bt_next" onclick="'+functionNextRecords+'(this)" title="Zobrazit další">Zobrazit další</a></td>'+
                               '  </tr></table>'+
                               '</div>';
                     break;                    
