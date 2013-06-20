@@ -58,13 +58,9 @@ function showDetailAnniversary(obj){
 // INICIALIZACE CONTROLLERU 
 
 $(document).bind('pageinit', function(event){
-    page = new Page(6);
+    page = new Page(6, 'CRM | Výročí a svátky', 0);
     initPage(page);
-    setNextRowsAmount(5);
-    
-    var row_markup = '<a href="javascript:void(0);" data-icon="arrow-d" onclick="showDetailAnniversary(this)">'+
-                     '@@CONTENT@@'+
-                     '</a>';    
+    setNextRowsAmount(5);   
     
     regCtrl('#cl_vyroci',
             4,

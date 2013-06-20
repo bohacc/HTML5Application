@@ -306,7 +306,11 @@ function home(){
     
 function setPageHead(page){
     // page.type 1 - seznam, 2 - zaznam, 3 - zaznam pro editaci
-    var caption = "CRM Kontakty";
+    var default_caption = "CRM Kontakty";
+    var caption = default_caption;
+    if (page._caption.length > 0){
+        caption = page._caption_add_to_default === 1 ? default_caption + page._caption : page._caption;
+    }
     var head = '    <div data-role="header">'+
                '        <h1 class="ui-title" id="header">'+caption+'</h1>'+
                '        <a id="header_toolbar" class="ui-btn-right" onclick="showNavbar();">...</a>'+
@@ -520,8 +524,10 @@ function CallStackSave(aid, afield, atable, afield_ref, aref_val){
     this._field_ref_val = aref_val;
 }
 
-function Page(atype){
+function Page(atype, acaption, acaption_add_to_default){
     this._type = atype;
+    this._caption = typeof(acaption) !== 'undefined' ? acaption : "";
+    this._caption_add_to_default = typeof(acaption_add_to_default) !== 'undefined' ? acaption_add_to_default : "";
     this._state = 0; // 0 - default,1 - new
 }
 
@@ -650,7 +656,9 @@ function setValue(v, ref_val, cs){
     }
     //-- LABEL
     if(cs._type === 3){
-        $(cs._id).html(decodeURIComponent(v));
+        if(v.length > 0){
+            $(cs._id).html(decodeURIComponent(v));
+        }
         if(aref_val_hidden !== ""){
             $('div[data-role="content"]').append(aref_val_hidden);
         }        

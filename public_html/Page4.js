@@ -62,7 +62,7 @@ function showDetailEvent(obj){
 // INICIALIZACE CONTROLLERU 
 
 $(document).bind('pageinit', function(event){
-    page = new Page(4);
+    page = new Page(4, 'CRM | Události', 0);
     initPage(page);
     setNextRowsAmount(5);
     

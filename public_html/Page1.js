@@ -54,15 +54,18 @@ function emailEnter(event, obj){
 // INICIALIZACE CONTROLLERU 
 
 $(document).bind('pageinit', function(event){
-    page = new Page(1);
+    page = new Page(1, 'CRM | Agenda', 0);
     initPage(page);
     setNextRowsAmount(50);
     
-    regCtrl('#aemail',1,['set_onkeypress:emailEnter(event, this)']);
+    regCtrl('#aemail', 1, ['set_onkeypress:emailEnter(event, this)']);
+    
+    regCtrl('#ul_tasks .bt_next', 1, ['set_onclick:tasksNextRecord(this)']);
     
     regCtrl('#adatum', 3, ['ds:web_agenda_pda_json', 'ds_par:&aparameters=code:'+getParam('apartner'), 'field:datum']);
     regCtrl('#acas', 3, ['ds:web_agenda_pda_json', 'ds_par:&aparameters=code:'+getParam('apartner'), 'field:cas']);
     regCtrl('#asvatek', 3, ['ds:web_agenda_pda_json', 'ds_par:&aparameters=code:'+getParam('apartner'), 'field:svatek']);
+    regCtrl('#asvatek_dalsi', 3, ['ds:web_agenda_pda_json', 'ds_par:&aparameters=code:'+getParam('apartner'), 'field:svatek_dalsi']);
     
     regCtrl('#cl_crmkontakty', 
             4, 
