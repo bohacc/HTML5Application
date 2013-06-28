@@ -58,9 +58,10 @@ $(document).bind('pageinit', function(event){
     initPage(page);
     setNextRowsAmount(50);
     
-    regCtrl('#aemail', 1, ['set_onkeypress:emailEnter(event, this)']);
+    regCtrl('#aemail', 1, ['set_keypress:emailEnter(event, this)']);
     
-    regCtrl('#ul_tasks .bt_next', 1, ['set_onclick:tasksNextRecord(this)']);
+    regCtrl('#ul_tasks .bt_next', 1, ['on_click:tasksNextRecord(this)']);
+    regCtrl('#ul_tasks .bt_new', 1, ['on_click:tasksNewRecord(this)']);
     
     regCtrl('#adatum', 3, ['ds:web_agenda_pda_json', 'ds_par:&aparameters=code:'+getParam('apartner'), 'field:datum']);
     regCtrl('#acas', 3, ['ds:web_agenda_pda_json', 'ds_par:&aparameters=code:'+getParam('apartner'), 'field:cas']);
@@ -90,7 +91,7 @@ $(document).bind('pageinit', function(event){
             ['ds:web_ukoly_seznam3_json',
              'ds_par:&aparameters=apartner:'+getParam('apartner')+'&aparameters=aamount:'+getNextRowsAmount(),
              'field_ref_val:ident',
-             'listview_footer:setListviewFooterDataInsert',
+             //'listview_footer:setListviewFooterDataInsert',
              'nested_fields:pole1;pole2;ident']);  
          
     regCtrl('#acollapsiblelist',

@@ -19,7 +19,7 @@ function verifyEvent(){
     if ($('#eventTo').val().length === 0 && err === 0){ err = 1; alert('Zadejte čas do'); $('#eventTo').focus(); };
     if ($('#eventSubject').val().length === 0 && err === 0){ err = 1; alert('Zadejte předmět'); $('#eventSubject').focus(); };
     if ($('#eventDescription').val().length === 0 && err === 0){ err = 1; alert('Zadejte poznámku'); $('#eventDescription').focus(); };
-    if ($('#eventPerson').val().length === 0 && err === 0){ err = 1; alert('Zadejte osobu'); $('#eventPerson').focus(); };
+    if ($('#eventPerson').val() === null && err === 0){ err = 1; alert('Zadejte osobu'); $('#eventPerson').focus(); };
     return err = err === 1 ? 0 : 1;
 }
 
@@ -102,9 +102,12 @@ function initComboPerson(){
             for (var i = 0; i < records.length; i++){
                 var code = decodeURIComponent(records[i].code);
                 var name = decodeURIComponent(records[i].name);
-                str += '<option value="'+code+'">'+name+'</option>';
+                var selected = decodeURIComponent(records[i].selected);
+                var sel = selected === '1' ? 'selected="selected"' : "";
+                str += '<option '+sel+' value="'+code+'">'+name+'</option>';
             }
-            $('#taskPerson').html(str).trigger('create').trigger('refresh');
+            $('#taskPerson').html(str);
+            $('#taskPerson').selectmenu('refresh', true);
         }else{
             alert('Při plnění nabídky pověřená osoba došlo k chybě.\n\n'+message);
         }
@@ -122,7 +125,9 @@ function initComboEventPerson(){
             for (var i = 0; i < records.length; i++){
                 var code = decodeURIComponent(records[i].code);
                 var name = decodeURIComponent(records[i].name);
-                str += '<option value="'+code+'">'+name+'</option>';
+                var selected = decodeURIComponent(records[i].selected);
+                var sel = selected === '1' ? 'selected="selected"' : "";
+                str += '<option '+sel+' value="'+code+'">'+name+'</option>';
             }
             $('#eventPerson').html(str);
             $('#eventPerson').selectmenu('refresh', 'true');
@@ -875,6 +880,11 @@ function setAttribute(id, metadata, type, multi){
         // set javascript actions to object
         if(p.substr(0,4) === "set_"){
             $(id).attr(p.substr(4), v);
+        }
+        // bind event javascript actions to object
+        if(p.substr(0,3) === "on_"){
+            var fce = function(){ eval('('+v+')'); };
+            $(id).on(p.substr(3), fce);
         }
     }
     if(cs._ds !== null){
