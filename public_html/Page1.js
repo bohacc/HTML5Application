@@ -49,16 +49,15 @@ function emailEnter(event, obj){
     }
 }
 
-
-
 // INICIALIZACE CONTROLLERU 
-
 $(document).bind('pageinit', function(event){
     page = new Page(1, 'CRM | Agenda', 0);
     initPage(page);
     setNextRowsAmount(50);
     
-    regCtrl('#aemail', 1, ['set_keypress:emailEnter(event, this)']);
+    regCtrl('#eventPerson', 1, ['set_onchange:addPerson()']);
+    
+    regCtrl('#aemail', 1, ['set_onkeypress:emailEnter(event, this)']);
     
     regCtrl('#ul_tasks .bt_next', 1, ['on_click:tasksNextRecord(this)']);
     regCtrl('#ul_tasks .bt_new', 1, ['on_click:tasksNewRecord(this)']);

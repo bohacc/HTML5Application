@@ -2,11 +2,87 @@
  *  Author: Martin Boháč
  *  Company: Notia
  */
+
+/**
+ * Created by bohac on 9.7.13.
+ */
+/* ANGULARJS*/
+//var PersonEvent = angular.module( "PersonEvent", [] );
+/*PersonEvent.controller("PersonEventController", function($scope, $http){
+    $scope.items = [];
+    $scope.persons = [];
+    $http.post('web_redir', 'aparameters=akod_r:web_mvc_udaje_os_ukol_json&aparameters=spouzetelo:1').success(function(data){
+        for(key in data.records){
+            //console.log(data.records[key].name);
+            var acode = decodeURIComponent(data.records[key].code);
+            var aname = decodeURIComponent(data.records[key].name);
+            $scope.items.push({id : acode,
+                name : aname});
+        }
+    });
+    $scope.add = function(){
+        var person = [{id : $scope.person.id,
+                    name : $scope.person.name}];
+        //console.log(existID($scope.persons, person));
+        if(!existID($scope.persons, person)){
+            $scope.persons.push(person[0]);
+        }
+    }
+});*/
+
 /* GLOBALNI MODULOVE */
+var persons = [];
+
+function existID(source, find_id){
+    var res = false;
+    if(source != null && find_id != null){
+        for(key in source){
+            if(source[key].id == find_id[0].id){
+                res = true;
+            }
+        }
+    }
+    return res;
+}
+
+function refreshPersons(){
+    var str = "";
+    $('#eventPersonList').empty();
+    for(key in persons){
+        str += '<li style="list-style-type:none"><a id="'+persons[key].id+'" href="#" data-role="button" data-inline="true" data-icon="delete" data-iconpos="notext">smazat</a>'+persons[key].name+'</li>';
+    }
+    $('#eventPersonList').html(str).trigger('create');
+    $('#eventPersonList a').on('click', function(){
+        deletePersonFromList(this);
+    });
+}
+
+function addPerson(){
+    var current = [{id : $('#eventPerson').val(), name : $('#eventPerson option:selected').text()}];
+    if(!existID(persons, current) && current[0].id.length > 0){
+        persons.push(current[0]);
+        refreshPersons();
+    }
+}
+
+function deletePersonFromList(obj){
+    for(key in persons){
+        if(persons[key].id == $(obj).attr('id')){
+            persons.splice(key, 1);
+            setDefaultItemPersonCombo();
+        }
+    }
+    refreshPersons();
+}
+
+function setDefaultItemPersonCombo(){
+    $('#eventPerson').val($('#eventPerson option:first').val());
+};
+
 function verifyTask(){
     var err = 0;
     if ($('#taskSubject').val().length === 0 && err === 0){ err = 1; alert('Zadejte předmět'); $('#taskSubject').focus(); };
-    if ($('#taskDescription').val().length === 0 && err === 0){ err = 1; alert('Zadejte text'); $('#taskDescription').focus(); };
+    //if ($('#taskDescription').val().length === 0 && err === 0){ err = 1; alert('Zadejte text'); $('#taskDescription').focus(); };
     if ($('#taskDate').val().length === 0 && err === 0){ err = 1; alert('Zadejte datum'); $('#taskDate').focus(); };
     if ($('#taskPerson').val().length === 0 && err === 0){ err = 1; alert('Zadejte osobu'); $('#taskPerson').focus(); };
     return err = err === 1 ? 0 : 1;
@@ -18,8 +94,8 @@ function verifyEvent(){
     if ($('#eventFrom').val().length === 0 && err === 0){ err = 1; alert('Zadejte čas od'); $('#eventFrom').focus(); };
     if ($('#eventTo').val().length === 0 && err === 0){ err = 1; alert('Zadejte čas do'); $('#eventTo').focus(); };
     if ($('#eventSubject').val().length === 0 && err === 0){ err = 1; alert('Zadejte předmět'); $('#eventSubject').focus(); };
-    if ($('#eventDescription').val().length === 0 && err === 0){ err = 1; alert('Zadejte poznámku'); $('#eventDescription').focus(); };
-    if ($('#eventPerson').val() === null && err === 0){ err = 1; alert('Zadejte osobu'); $('#eventPerson').focus(); };
+    //if ($('#eventDescription').val().length === 0 && err === 0){ err = 1; alert('Zadejte poznámku'); $('#eventDescription').focus(); };
+    if (persons.length/*$('#eventPerson').val()*/ === 0 && err === 0){ err = 1; alert('Zadejte osobu'); $('#eventPerson').focus(); };
     return err = err === 1 ? 0 : 1;
 }
 
@@ -57,13 +133,14 @@ function postNewEvent(obj){
               '&aparameters=date:'+$('#eventDate').val()+
               '&aparameters=datefrom:'+$('#eventFrom').val()+
               '&aparameters=dateto:'+$('#eventTo').val()+
-              '&aparameters=person:'+$('#eventPerson').val()+
-              '&aparameters=ident:'+$('.ref_id').val(), 
+              '&aparameters=person:'+joinObjectsIDToString(persons)+
+              '&aparameters=ident:'+$('.ref_id').val(),
               function(data){
                   var data_fmt = $.parseJSON(data);
                   var state = decodeURIComponent(data_fmt.state);
                   var message = decodeURIComponent(data_fmt.message);
                   if (state === '1'){
+                      persons = [];
                       changeButtonsCLToolbar2(obj);
                       initDocs();
                   }else{
@@ -98,7 +175,7 @@ function initComboPerson(){
         var message = decodeURIComponent(data_fmt.message);
         if (state === '1'){
             var records = data_fmt.records;
-            var str = '<option value="">&nbsp;</option>';
+            var str = '<option value="">-- vyberte osobu --</option>';
             for (var i = 0; i < records.length; i++){
                 var code = decodeURIComponent(records[i].code);
                 var name = decodeURIComponent(records[i].name);
@@ -121,7 +198,7 @@ function initComboEventPerson(){
         var message = decodeURIComponent(data_fmt.message);
         if (state === '1'){
             var records = data_fmt.records;
-            var str = '<option>Účastníci<\/option>';
+            var str = '<option value="">-- vyberte osobu --<\/option>';//'<option>Účastníci<\/option>';
             for (var i = 0; i < records.length; i++){
                 var code = decodeURIComponent(records[i].code);
                 var name = decodeURIComponent(records[i].name);
@@ -177,6 +254,14 @@ function eventsNewRecord(obj){
 }
 
 /* GLOBALNI UTILS */
+function joinObjectsIDToString(obj){
+    var ids = [];
+    for(key in obj){
+        ids.push(obj[key].id);
+    }
+    return ids.join(',');
+}
+
       function nEncodeUri( str ) {
         var tmp_str = str.replace(/&aparameters=/g, '(!)').replace(/&aParameters=/g, '(!)');
         tmp_str = encodeURIComponent( tmp_str );
