@@ -32,17 +32,14 @@
 
 /* GLOBALNI MODULOVE */
 var persons = [];
+var form_method = 'get';
 
-function existID(source, find_id){
-    var res = false;
-    if(source != null && find_id != null){
-        for(key in source){
-            if(source[key].id == find_id[0].id){
-                res = true;
-            }
-        }
-    }
-    return res;
+function newPartnerDialog(){
+    goToPage("CRM_KONTAKTY_PDA_PAGE7");
+}
+
+function newPersonDialog(){
+    goToPage("CRM_KONTAKTY_PDA_PAGE8");
 }
 
 function refreshPersons(){
@@ -254,6 +251,18 @@ function eventsNewRecord(obj){
 }
 
 /* GLOBALNI UTILS */
+function existID(source, find_id){
+    var res = false;
+    if(source != null && find_id != null){
+        for(key in source){
+            if(source[key].id == find_id[0].id){
+                res = true;
+            }
+        }
+    }
+    return res;
+}
+
 function joinObjectsIDToString(obj){
     var ids = [];
     for(key in obj){
@@ -384,7 +393,7 @@ function goToPageWithParams(call, params){
 }
 
 function goToPage(page){
-    $('body').append('<form name="form_page" action="web_redir_backend" data-ajax="false" method="post">'+
+    $('body').append('<form name="form_page" action="web_redir_backend" data-ajax="false" method="'+form_method+'">'+
                      '  <input type="hidden" name="ap" value="akod_r:'+page+'">'+
                      '</form>');
     $('form').submit();
@@ -406,7 +415,7 @@ function setPageHead(page){
                '        <a id="header_toolbar" class="ui-btn-right" onclick="showNavbar();">...</a>'+
                '    </div>'+
                '    <div data-role="navbar" class="hide">'+
-               '        <ul>'+
+               '        <ul id="bt_list">'+
                '            <li><a href="#" data-icon="home" id="bt_home">Domů</a></li>'+
                '        </ul>'+
                '    </div>';
@@ -415,17 +424,28 @@ function setPageHead(page){
     // button HOME
     $('#bt_home').attr("onclick","home()");
     
+    if(page._type === 1){
+        $('#bt_home').closest('li').remove();
+        $('#bt_list').append('<li><a href="#" id="header_new_partner" data-icon="gear">Nový partner</a></li>').trigger('create');
+        $('#bt_list').append('<li><a href="#" id="header_new_person" data-icon="gear">Nová osoba</a></li>').trigger('create');
+        $('#header_new_partner').on('click', newPartnerDialog);
+        $('#header_new_person').on('click', newPersonDialog);
+    }
     // header content by page type
     if(page._type === 2){
         $('h1').html(caption + " - záznam").trigger('create');
-        $('div[data-role="navbar"] ul').append('<li><a href="#" id="header_edit" data-icon="gear" onclick="editRecord();">Upravit</a></li>').trigger('create');
+        $('#bt_list').append('<li><a href="#" id="header_edit" data-icon="gear" onclick="editRecord();">Upravit</a></li>').trigger('create');
     }    
     if(page._type === 3){
         $('h1').html(caption + " - záznam / editace");
         
-        $('div[data-role="navbar"] ul').append('<li><a id="header_edit" data-icon="delete" onclick="javascript:self.history.back();">Zpět</a></li>').trigger('create');
-        $('div[data-role="navbar"] ul').append('<li><a id="header_edit" data-icon="check" onclick="initSave();">Uložit</a></li>').trigger('create');
+        $('#bt_list').append('<li><a id="header_edit" data-icon="delete" onclick="javascript:self.history.back();">Zpět</a></li>').trigger('create');
+        $('#bt_list').append('<li><a id="header_edit" data-icon="check" onclick="initSave();">Uložit</a></li>').trigger('create');
     }
+    // hide for empty navbar
+    if($('#bt_list li').length === 0){
+        $('#header_toolbar').hide();
+    }    
 };
 
 function setPageFoot(page){
@@ -619,6 +639,13 @@ function Page(atype, acaption, acaption_add_to_default){
     this._caption = typeof(acaption) !== 'undefined' ? acaption : "";
     this._caption_add_to_default = typeof(acaption_add_to_default) !== 'undefined' ? acaption_add_to_default : "";
     this._state = 0; // 0 - default,1 - new
+}
+
+function FactoryNavigator(name){
+    var obj = eval(name);
+    this.getInstance = function(){
+        return new obj;
+    }
 }
 
 function regCtrl(id, id_ctrl, metadata){
@@ -1180,6 +1207,50 @@ function setListviewHeaderDataInsert(id, data, cs){
     }
 }
 
+function NavigatorButtonsEdit(){
+    var content = '<div>'+
+                  '  <table style="width: 100%"><tr>'+
+                  '    <td><a href="#" style="width: 100%" data-icon="gear" data-role="button" class="bt_edit" onclick="editItemRows(this);changeButtonsCLToolbar(this);">Upravit</a></td>'+
+                  '  </tr></table>'+
+                  '</div>';
+    this.getContent = function(){
+        return content;
+    };
+}
+
+function NavigatorButtonsNewNext(f_new, f_next){
+    this.content = '<div>'+
+                  '  <table style="width: 100%"><tr>'+
+                  '    <td style="width: 50%"><a href="#" style="width: 100%" data-icon="plus" data-inline="true" data-role="button" class="bt_new" onclick="changeButtonsCLToolbar2(this);'+f_new+'(this);" title="Nový záznam">Přidat</a></td>'+
+                  '    <td style="width: 50%"><a href="#" style="width: 100%" data-inline="true" data-role="button" class="bt_next" onclick="'+f_next+'(this)" title="Zobrazit další">Zobrazit další</a></td>'+
+                  '  </tr></table>'+
+                  '</div>';
+    this.getContent = function(){
+        return this.content;
+    };
+}
+
+function NavigatorButtonsNext(f_next){
+    this.content = '<div>'+
+                  '  <table style="width: 100%"><tr>'+
+                  '    <td style="width: 100%"><a href="#" style="width: 100%" data-inline="true" data-role="button" class="bt_next" onclick="'+f_next+'(this)" title="Zobrazit další">Zobrazit další</a></td>'+
+                  '  </tr></table>'+
+                  '</div>';
+    this.getContent = function(){
+        return this.content;
+    };
+}
+
+function NavigatorButtonsNewPerson(f_new){
+    this.content = '<div>'+
+                  '  <table style="width: 100%"><tr>'+
+                  '    <td style="width: 100%"><a href="#" style="width: 100%" data-inline="true" data-role="button" class="bt_next" onclick="'+f_new+'(this)" title="Zobrazit další">Nová osoba</a></td>'+
+                  '  </tr></table>'+
+                  '</div>';    
+    this.getContent = function(){
+        return this.content;
+    };    
+}
 
 function setListviewFooterDataInsert(id, data, cs){
     var content = "";
@@ -1197,37 +1268,30 @@ function setListviewFooterDataInsert(id, data, cs){
                 }
                 p += 1;
             });
+            
             switch(type_navigator)
             {
                 case 0:
                     content = '';
                     break;
                 case 1:
-                    content = '<div>'+
-                              '  <table style="width: 100%"><tr>'+
-                              '    <td><a href="#" style="width: 100%" data-icon="gear" data-role="button" class="bt_edit" onclick="editItemRows(this);changeButtonsCLToolbar(this);">Upravit</a></td>'+
-                              '  </tr></table>'+
-                              '</div>';
+                    content = new NavigatorButtonsEdit().getContent();
                     break;
                 case 2:
                     var functionNewRecord = decodeURIComponent(data[i].functionNewRecord);
                     var functionNextRecords = decodeURIComponent(data[i].functionNextRecord);
-                    content = '<div>'+
-                              '  <table style="width: 100%"><tr>'+
-                              '    <td style="width: 50%"><a href="#" style="width: 100%" data-icon="plus" data-inline="true" data-role="button" class="bt_new" onclick="changeButtonsCLToolbar2(this);'+functionNewRecord+'(this);" title="Nový záznam">Přidat</a></td>'+
-                              '    <td style="width: 50%"><a href="#" style="width: 100%" data-inline="true" data-role="button" class="bt_next" onclick="'+functionNextRecords+'(this)" title="Zobrazit další">Zobrazit další</a></td>'+
-                              '  </tr></table>'+
-                              '</div>';
+                    content = new NavigatorButtonsNewNext(functionNewRecord, functionNextRecords).getContent();
                     break;
                 case 3:
                     var functionNextRecords = decodeURIComponent(data[i].functionNextRecord);
-                    content = '<div>'+
-                              '  <table style="width: 100%"><tr>'+
-                              '    <td style="width: 100%"><a href="#" style="width: 100%" data-inline="true" data-role="button" class="bt_next" onclick="'+functionNextRecords+'(this)" title="Zobrazit další">Zobrazit další</a></td>'+
-                              '  </tr></table>'+
-                              '</div>';
-                    break;                    
+                    content = new NavigatorButtonsNext(functionNextRecords).getContent();
+                    break;
+                case 4:
+                    var functionNextRecords = 'newPersonDialog';
+                    content = new NavigatorButtonsNewPerson(functionNextRecords).getContent();
+                    break;                
             }  
+            
             content.length > 0 ? $(current_obj).find('ul').append('<li data-icon="false">'+content+'</li>').trigger('create').listview("refresh") : null;
             
         }
