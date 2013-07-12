@@ -251,6 +251,11 @@ function eventsNewRecord(obj){
 }
 
 /* GLOBALNI UTILS */
+function setPageAfterSearch(id){
+    $(id).hide();
+    $(id).empty();
+};
+
 function existID(source, find_id){
     var res = false;
     if(source != null && find_id != null){
@@ -314,26 +319,25 @@ function joinObjectsIDToString(obj){
      
         };
       };    
-    
+  
 $(document).delegate('div[data-role=page]', 'pageshow', function() {
-    var theme = $.mobile.loadingMessageTheme;
+    var msgtheme = $.mobile.loadingMessageTheme;
     var msgText = "načítám...";    
-    $.mobile.showPageLoadingMsg(theme, msgText, false);
+    //$.mobile.loading( 'show', {theme: msgtheme, text: msgText, textonly: false, textVisible: true}); //$.mobile.showPageLoadingMsg(theme, msgText, false);
 });
-
 
 $(document).bind('pageinit', function(){    
     try {  
       $(document).ajaxStart( function() { 
-          var theme = $.mobile.loadingMessageTheme;
-          var msgText = "načítám...";
-          $.mobile.showPageLoadingMsg(theme, msgText, false);
+          var msgtheme = $.mobile.loadingMessageTheme;
+          var msgText = "načítám..."; 
+          $.mobile.loading( 'show', {theme: msgtheme, text: msgText, textonly: false, textVisible: true});
       });
       $(document).ajaxStop( function() { 
-          $.mobile.hidePageLoadingMsg();
+          $.mobile.loading( 'hide' );
       });
       $(document).ajaxError( function() { 
-          $.mobile.hidePageLoadingMsg();
+          $.mobile.loading( 'hide' );
       });
     } catch(err) { 
 

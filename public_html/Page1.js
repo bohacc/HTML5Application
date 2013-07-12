@@ -4,16 +4,6 @@
  */
 
 // FUNKCE PRO FORMULAR -------
-
-function setPageAfterSearch(){
-    $('#acollapsiblelist').hide();
-    $('#acollapsiblelist').empty();
-};
-
-function setPageAfterSearchCallback(){
-    $('#acollapsiblelist').show();
-}
-
 function printResult(obj){
     // INICIALIZACE CONTROLLERU
     
@@ -24,7 +14,7 @@ function printResult(obj){
              'row_events:["set_onclick:saveSearchText(this)"]',
              'field:partner_nazev',
              'field_ref_val:ident2',
-             'callbackFce:setPageAfterSearchCallback()']);
+             'callbackFce:$("#acollapsiblelist").show()']);
     initDocs();
 };
 
@@ -43,7 +33,7 @@ function emailEnter(event, obj){
             alert("Zadejte minimálně 3 znaky");
         }else{
             clearCallsStack();
-            setPageAfterSearch();
+            setPageAfterSearch('#acollapsiblelist');
             printResult(obj);    
         }
     }
