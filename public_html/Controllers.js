@@ -251,6 +251,14 @@ function eventsNewRecord(obj){
 }
 
 /* GLOBALNI UTILS */
+var search_state = {
+    str : "",
+    isChange : function(arg){
+        //console.log('isChange => '+this.str+' * '+arg);
+        return this.str === arg ? false : true;
+    }    
+}
+
 function setPageAfterSearch(id){
     $(id).hide();
     $(id).empty();
