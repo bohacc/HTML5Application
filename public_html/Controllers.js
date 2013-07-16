@@ -39,7 +39,9 @@ function newPartnerDialog(){
 }
 
 function newPersonDialog(){
-    goToPage("CRM_KONTAKTY_PDA_PAGE8");
+    //goToPage("CRM_KONTAKTY_PDA_PAGE8");
+    var tmp = getParam('apartner');
+    goToPageWithParams('web_redir_backend', 'ap=akod_r:CRM_KONTAKTY_PDA_PAGE8&ap=apartner:'+tmp);
 }
 
 function refreshPersons(){
@@ -251,7 +253,7 @@ function eventsNewRecord(obj){
 }
 
 function getPartner(){
-    return getParam('partner');
+    return getParam('apartner');
 }
 
 /* GLOBALNI UTILS */
