@@ -250,6 +250,10 @@ function eventsNewRecord(obj){
     setDateEvents();
 }
 
+function getPartner(){
+    return getParam('partner');
+}
+
 /* GLOBALNI UTILS */
 var search_state = {
     str : "",
@@ -384,7 +388,7 @@ function getParam(name) {
       return unescape(tmp[1]);
     }
   }
-  return null;
+  return '';
 }
 
 function goToPageWithParams(call, params){

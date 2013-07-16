@@ -86,9 +86,11 @@ function openPerson(obj){
 }
 
 function saveNewPerson(obj){
-    var tmp = $('#name').val();
+    var first_name = $('#first-name').val();
+    var last_name = $('#last-name').val();
+    var partner = getPartner();
     nAjax('web_redir',
-          '&aparameters=akod_r:web__json&aparameters=spouzetelo:1&aparameters=code:'+tmp,
+          '&aparameters=akod_r:web_zalozit_osobu_json&aparameters=spouzetelo:1&aparameters=first_name:'+first_name+'&aparameters=last_name:'+last_name+'&aparameters=apartner:'+partner,
           function(data){
               var data_fmt = $.parseJSON(data);
               var partner = decodeURIComponent(data_fmt.partner);

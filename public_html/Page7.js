@@ -64,14 +64,20 @@ function searchCompanyKeybord(event, obj){
 function saveNewPartner(){
     var tmp = $('#name').val();
     nAjax('web_redir',
-          '&aparameters=akod_r:web__json&aparameters=spouzetelo:1&aparameters=code:'+tmp,
+          '&aparameters=akod_r:web_eshop_zalozit_uziv_json&aparameters=spouzetelo:1&aparameters=anazev_fak:'+tmp,
           function(data){
               var data_fmt = $.parseJSON(data);
               var partner = decodeURIComponent(data_fmt.partner);
               var state = decodeURIComponent(data_fmt.state);
               var msg = decodeURIComponent(data_fmt.message);
               if(state == "1"){
-                  goToPageWithParams('web_redir_backend', 'ap=akod_r:CRM_KONTAKTY_PDA_PAGE2&ap=apartner:'+partner);
+                  nAjax('web_redir',
+                        '&aparameters=akod_r:web_adresar_pda_ident_json&aparameters=spouzetelo:1&aparameters=apartner:'+partner,
+                        function(data){
+                            var data_fmt = $.parseJSON(data);
+                            var ident = decodeURIComponent(data_fmt.ident);
+                            goToPageWithParams('web_redir_backend', 'ap=akod_r:CRM_KONTAKTY_PDA_PAGE2&ap=apartner:'+ident);
+                        });
               }else{
                   alert(msg);
               }
