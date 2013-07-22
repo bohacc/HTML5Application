@@ -9,14 +9,14 @@ function initTaskRecord(obj){
     nAjax('web_redir', '&aparameters=akod_r:web_ukoly_zaznam_json&aparameters=spouzetelo:1&aparameters=aid:'+id_val, function(data){
         var data_fmt = $.parseJSON(data);
         var termin_splneni = decodeURIComponent(data_fmt.data[0].termin_splneni);
-        var osoba = '';
+        var osoba = decodeURIComponent(data_fmt.data[0].osoba_resitel);
         var predmet = decodeURIComponent(data_fmt.data[0].predmet);
         var poznamka = decodeURIComponent(data_fmt.data[0].text);
         var sab = $(obj).parent().find('.taskDetail');
         sab.find('.taskDate').html(termin_splneni);
         sab.find('.taskSubject').html(predmet);
         sab.find('.taskDescription').html(poznamka);
-        sab.find('.taskUsers').html(osoba);
+        sab.find('.taskPerson').html(osoba);
     });
 }
 
