@@ -4,119 +4,6 @@
  */
 
 // FUNCTION FOR CONTROLLERS
-function initTaskRecord(obj){
-    var id_val = $(obj).parent().find('.ident').val();
-    nAjax('web_redir', '&aparameters=akod_r:web_ukoly_zaznam_json&aparameters=spouzetelo:1&aparameters=aid:'+id_val, function(data){
-        var data_fmt = $.parseJSON(data);
-        var termin_splneni = decodeURIComponent(data_fmt.data[0].termin_splneni);
-        var osoba = decodeURIComponent(data_fmt.data[0].osoba_resitel);
-        var predmet = decodeURIComponent(data_fmt.data[0].predmet);
-        var poznamka = decodeURIComponent(data_fmt.data[0].text);
-        var sab = $(obj).parent().find('.taskDetail');
-        sab.find('.taskDate').html(termin_splneni);
-        sab.find('.taskSubject').html(predmet);
-        sab.find('.taskDescription').html(poznamka);
-        sab.find('.taskPerson').html(osoba);
-    });
-}
-
-function showDetailTask(obj){ 
-    if ($(obj).parent().find('.taskDetail').is(':visible')) {
-        $(obj).parent()
-                  .find('.taskDetail')
-                  .slideUp(500, function() { $(this).remove(); });
-        $(obj).closest('li').attr('data-icon', 'arrow-d')
-                  .find('.ui-icon')
-                  .addClass('ui-icon-' + 'arrow-d')
-                  .removeClass('ui-icon-' + 'arrow-u');
-    }else{
-        $(obj).after('<div class="taskDetail nodelete" style="display:none"></div>');
-        $('ul').find('.taskDetail').slideUp(500, function() { 
-            if( !$(this).hasClass('nodelete') ) { 
-                $(this).closest('li').attr('data-icon', 'arrow-d')
-                    .find('.ui-icon')
-                    .addClass('ui-icon-' + 'arrow-d')
-                    .removeClass('ui-icon-' + 'arrow-u');                
-                $(this).remove(); 
-            } 
-        });
-        
-        var tmp = $(obj).parent().find('.taskDetail');
-        
-        tmp.append($('#newTaskReadOnly').html())
-        
-        initTaskRecord(obj);
-   
-        tmp.slideDown(600) // musi byt vetsi cas nez slideUp
-           .removeClass('nodelete');
-   
-        $(obj).closest('li').attr('data-icon', 'arrow-u')
-                  .find('.ui-icon')
-                  .addClass('ui-icon-' + 'arrow-u')
-                  .removeClass('ui-icon-' + 'arrow-d');
-    }
-}
-
-function initEventRecord(obj){
-    var id_val = $(obj).parent().find('.ident').val();
-    nAjax('web_redir', '&aparameters=akod_r:web_udalosti_zaznam_json&aparameters=spouzetelo:1&aparameters=aid:'+id_val, function(data){
-        var data_fmt = $.parseJSON(data);
-        var datum_od = decodeURIComponent(data_fmt.data[0].datum_od);
-        var datum_do = decodeURIComponent(data_fmt.data[0].datum_do);
-        var predmet = decodeURIComponent(data_fmt.data[0].predmet);
-        var poznamka = decodeURIComponent(data_fmt.data[0].poznamka);
-        var sab = $(obj).parent().find('.eventDetail');
-        sab.find('.eventDate').html();
-        sab.find('.eventFrom').html(datum_od);
-        sab.find('.eventTo').html(datum_do);
-        sab.find('.eventSubject').html(predmet);
-        sab.find('.eventDescription').html(poznamka);
-        sab.find('.eventUsers').html();
-    });
-}
-
-function showDetailEvent(obj){ 
-    if ($(obj).parent().find('.eventDetail').is(':visible')) {
-        $(obj).parent()
-                  .find('.eventDetail')
-                  .slideUp(500, function() { $(this).remove(); });
-        $(obj).closest('li').attr('data-icon', 'arrow-d')
-                  .find('.ui-icon')
-                  .addClass('ui-icon-' + 'arrow-d')
-                  .removeClass('ui-icon-' + 'arrow-u');
-    }else{
-        $(obj).after('<div class="eventDetail nodelete" style="display:none"></div>');
-        $('ul').find('.eventDetail').slideUp(500, function() { 
-            if( !$(this).hasClass('nodelete') ) { 
-                $(this).closest('li').attr('data-icon', 'arrow-d')
-                    .find('.ui-icon')
-                    .addClass('ui-icon-' + 'arrow-d')
-                    .removeClass('ui-icon-' + 'arrow-u');                
-                $(this).remove(); 
-            } 
-        });
-        
-        var tmp = $(obj).parent().find('.eventDetail');
-        
-        tmp.append($('#newEventReadOnly').html())
-        
-        initEventRecord(obj);
-   
-        tmp.slideDown(600) // musi byt vetsi cas nez slideUp
-           .removeClass('nodelete');
-   
-        $(obj).closest('li').attr('data-icon', 'arrow-u')
-                  .find('.ui-icon')
-                  .addClass('ui-icon-' + 'arrow-u')
-                  .removeClass('ui-icon-' + 'arrow-d');
-    }
-}
-
-function deleteNewTask(obj){
-    $(obj).closest('li').remove();
-    refreshListview($(obj).closest('div[data-role="collapsible"]'));
-}
-
 function saveRow(obj, data_type){
     var val = $(obj).val();
     var params = '&aparameters=aid:'+$('.ref_id').get(0).value+
@@ -180,6 +67,8 @@ $(document).bind('pageinit', function(event){
     var row_markup = '<a href="javascript:void(0);" onclick="@@CALL@@(this)">'+
                      '@@CONTENT@@'+
                      '</a>';    
+    
+    regCtrl('#eventPerson', 1, ['set_onchange:addPerson()']);
     
     regCtrl('#cl_kontakty',
             4,
