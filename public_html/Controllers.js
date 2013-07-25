@@ -640,7 +640,7 @@ function setNextRowsAmount(acnt){
 }
 
 function getModuleId(){
-    return '@@MODULE_ID@@'.replace(/@@/g,'').replace(/MODULE_ID/g,'0');
+    return '10000'.replace(/@@/g,'').replace(/MODULE_ID/g,'0');
 }
 
 function cancelSaveRow(id, data_type){
@@ -931,7 +931,14 @@ function setValue(v, ref_val, cs){
         var anchor_event = "";
         aref_val_hidden = "";
         aref_val_id = "";
-             
+          
+        // if paging and not exists in callsstack then add it
+        if (cs._call_for_next_rows.length > 0 && existsCall(cs) === 0){ 
+            var cs_new = Object.create(cs);
+            cs_new._row_item = r_rownum;            
+            callsStackPaging.push(cs_new);
+        }        
+        
         str = '<ul data-role="listview" id="id_'+rnd+'">';
         for(var i=0;i<r_rows.length;i++){
             var row = r_rows[i];
@@ -998,14 +1005,12 @@ function setValue(v, ref_val, cs){
                         var row_markup_for_items = cs._row_markup_for_item.length > 0 ? cs._row_markup_for_item.split(',') : [];
                         var row_markup_for_item_calls = cs._row_markup_for_item_call.length > 0 ? cs._row_markup_for_item_call.split(',') : [];
                         var markup = cs._row_markup;
-
-                        if(row_markup_for_items.indexOf(r_rownum) > 0){
+                        if(row_markup_for_items.indexOf(r_rownum) > -1){
                             markup = markup.replace(/@@CALL@@/g, row_markup_for_item_calls[row_markup_for_items.indexOf(r_rownum)]);
                         }else{
                             markup = markup.replace(/@@CALL@@/g, '');
                             data_icon = cs._row_markup_for_item.length > 0 ? 'false' : data_icon;
                         }
-                                       
                         str += '<li data-icon="'+data_icon+'" data-role="fieldcontain" class="data">'+
                                markup.replace(/@@CONTENT@@/g, content_row)+
                                aref_val_hidden+
@@ -1025,18 +1030,11 @@ function setValue(v, ref_val, cs){
         }
         
         // row for next records
-        if (cs._call_for_next_rows.length > 0){
+        if (enablePagingNext(cs)){
             str += '<li data-icon="false" class="button_next_rows"><a href="javascript:void(0);" onclick="initDocs(1,\''+cs._id+'\','+r_rownum+');">další záznamy</a></li>';
         }
         
         str += '</ul>';
-        //alert(str);
-        // pokud se bude stránkovat a není v zásobníku, tak se přidá
-        if (cs._call_for_next_rows.length > 0 && existsCall(cs) === 0){ 
-            var cs_new = Object.create(cs);
-            cs_new._row_item = r_rownum;            
-            callsStackPaging.push(cs_new);
-        }        
         
         j = 0;
         var tmp_id = cs._collapsible_id === '' ? cs._id : cs._collapsible_id;
@@ -1058,6 +1056,15 @@ function setValue(v, ref_val, cs){
         //-- recreate lisview
         refreshListview(cs._id);
     }
+}
+
+function enablePagingNext(csp){
+    var r = false;
+    if (csp._call_for_next_rows.length > 0){
+        r = true;
+    }
+    // call fce - check rows
+    return r;
 }
 
 function setAttribute(id, metadata, type, multi){

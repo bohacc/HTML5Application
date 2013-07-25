@@ -45,6 +45,10 @@ $(document).bind('pageinit', function(event){
     initPage(page);
     setNextRowsAmount(50);
     
+    var row_markup = '<a href="javascript:void(0);" onclick="@@CALL@@(this)">'+
+                     '@@CONTENT@@'+
+                     '</a>';    
+    
     regCtrl('#eventPerson', 1, ['set_onchange:addPerson()']);
     
     regCtrl('#aemail', 1, ['set_onkeypress:emailEnter(event, this)']);
@@ -73,6 +77,10 @@ $(document).bind('pageinit', function(event){
              'field_ref_val:ident',
              'listview_footer:setListviewFooterDataInsert',
              'collapsible_id:#audalosti',
+             'row_markup:'+row_markup,
+             'row_markup_for_item:1',
+             'row_markup_for_item_call:showDetailEvent',             
+             'row_data_icon:arrow-d',             
              'nested_fields:pole1;pole2;pole3;pole4;ident']);
          
     regCtrl('#cl_ukoly',
@@ -80,7 +88,10 @@ $(document).bind('pageinit', function(event){
             ['ds:web_ukoly_seznam3_json',
              'ds_par:&aparameters=apartner:'+getParam('apartner')+'&aparameters=aamount:'+getNextRowsAmount(),
              'field_ref_val:ident',
-             //'listview_footer:setListviewFooterDataInsert',
+             'row_markup:'+row_markup,
+             'row_markup_for_item:1,2',
+             'row_markup_for_item_call:showDetailTask,showDetailTask',
+             'row_data_icon:arrow-d',
              'nested_fields:pole1;pole2;ident']);  
          
     regCtrl('#acollapsiblelist',
