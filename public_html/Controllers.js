@@ -374,7 +374,6 @@ function getPartner(){
 var search_state = {
     str : "",
     isChange : function(arg){
-        //console.log('isChange => '+this.str+' * '+arg);
         return this.str === arg ? false : true;
     }    
 }
@@ -649,7 +648,7 @@ function cancelSaveRow(id, data_type){
 }
 
 function setCallsStackPagingPage(stack){
-    stack[0]._page += 1;
+    stack._page += 1;
 }
 
 function getEditRowCL(data_type){
@@ -833,11 +832,10 @@ function getCurrentCallsStackPaging(id, row_item){
     var callsStackItem = [];
     for (var i=0; i < callsStackPaging.length; i++){
         if (callsStackPaging[i]._id == id && callsStackPaging[i]._row_item == row_item){
-            //callsStackItem.push(Object.create(callsStackPaging[i]));
             callsStackItem.push(callsStackPaging[i]);
         }
     }
-    return callsStackItem;
+    return callsStackItem[0];
 }
 
 function setRowEvents(row_events, ref_val_id){
@@ -861,12 +859,15 @@ function refreshListview(id){
     } 
 }
 
-function setListRows(cs, content, obj_ins, rownum){
+function setListRows(cs, content, obj_ins, rownum, printNextButton){
     if (cs._call_for_next_rows.length > 0 && cs._page > 1){
         if (rownum == cs._row_item) {
             var tmp = $(content).find('li.data');
             var button_next = obj_ins.find('.button_next_rows');
             if (tmp.length > 0){
+                if(!printNextButton){
+                    button_next.hide();
+                };
                 button_next.before(tmp.slideDown())
                              .closest('ul').listview('refresh');
             }else{
@@ -929,13 +930,15 @@ function setValue(v, ref_val, cs){
         var row_ident_html = "";
         var anchor = "javascript:void(0)";
         var anchor_event = "";
+        var rows_count = 0;
+        var printNextButton = false;
         aref_val_hidden = "";
         aref_val_id = "";
           
         // if paging and not exists in callsstack then add it
         if (cs._call_for_next_rows.length > 0 && existsCall(cs) === 0){ 
             var cs_new = Object.create(cs);
-            cs_new._row_item = r_rownum;            
+            cs_new._row_item = r_rownum;  
             callsStackPaging.push(cs_new);
         }        
         
@@ -955,6 +958,7 @@ function setValue(v, ref_val, cs){
                     var db_field = row[fields[j]+"_field"];
                     var class_hide = "";
                     var isdata = 1;
+                    // Fix fields
                     if (fields[j] === 'anchor'){
                         anchor = decodeURIComponent(row[fields[j]]);
                         isdata = 0;
@@ -967,6 +971,13 @@ function setValue(v, ref_val, cs){
                         row_ident_html = '<input class="ident" type="hidden" name="ap" value="'+row[fields[j]]+'" />';
                         isdata = 0;
                     }
+                    if (fields[j] === 'rows_count'){
+                        try{
+                            rows_count = parseInt(decodeURIComponent(row[fields[j]]));
+                        }catch(e){};
+                        isdata = 0;
+                    }
+                    
                     if (isdata === 1){
                         if(data_type !== undefined){
                             adata_type_row = data_type;
@@ -1030,8 +1041,11 @@ function setValue(v, ref_val, cs){
         }
         
         // row for next records
-        if (enablePagingNext(cs)){
+        if (enablePagingNext(cs, r_rownum, rows_count)){
+            printNextButton = true;
             str += '<li data-icon="false" class="button_next_rows"><a href="javascript:void(0);" onclick="initDocs(1,\''+cs._id+'\','+r_rownum+');">další záznamy</a></li>';
+        }else{
+            printNextButton = false;
         }
         
         str += '</ul>';
@@ -1041,7 +1055,7 @@ function setValue(v, ref_val, cs){
         $(tmp_id+' h3').each(function(){
             j++;
             if(parseInt(r_rownum) === j){
-                setListRows(cs, str, $(this).next(), r_rownum);
+                setListRows(cs, str, $(this).next(), r_rownum, printNextButton);
                 //zmena caption
                 if(cl_caption !== undefined && cl_caption !== null){
                     $(this).find('.ui-btn-text').text(decodeURIComponent(cl_caption));
@@ -1058,12 +1072,14 @@ function setValue(v, ref_val, cs){
     }
 }
 
-function enablePagingNext(csp){
+function enablePagingNext(csp, r_rownum, rows_count){
     var r = false;
+    var rows_on_page = getNextRowsAmount();
+    var arr = getCurrentCallsStackPaging(csp._id, r_rownum);
+    var page = arr._page;
     if (csp._call_for_next_rows.length > 0){
-        r = true;
+        r = page < Math.ceil(rows_count / rows_on_page) ? true : false;
     }
-    // call fce - check rows
     return r;
 }
 
@@ -1178,8 +1194,9 @@ function initDocs(callsStackPaging, id, row_item){
     var arr = callsStack;
     // for paging
     if (callsStackPaging !== undefined){
-        arr = getCurrentCallsStackPaging(id, row_item);
-        setCallsStackPagingPage(arr);
+        var item = getCurrentCallsStackPaging(id, row_item);
+        setCallsStackPagingPage(item);
+        arr = [item];
     }
     for(var i=0;i<arr.length;i++){
         var tmp = arr[i];

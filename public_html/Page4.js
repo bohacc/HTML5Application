@@ -26,7 +26,7 @@ $(document).bind('pageinit', function(event){
              'row_markup:'+row_markup,
              'row_data_icon:arrow-d',
              'call_for_next_rows:1',
-             'nested_fields:pole1;pole2;pole3;pole4;ident']);
+             'nested_fields:pole1;pole2;pole3;pole4;ident;rows_count']);
 
     initDocs();
 });
