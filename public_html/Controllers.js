@@ -1075,9 +1075,11 @@ function setValue(v, ref_val, cs){
 function enablePagingNext(csp, r_rownum, rows_count){
     var r = false;
     var rows_on_page = getNextRowsAmount();
-    var arr = getCurrentCallsStackPaging(csp._id, r_rownum);
-    var page = arr._page;
+    var arr = {};
+    var page = 1;
     if (csp._call_for_next_rows.length > 0){
+        arr = getCurrentCallsStackPaging(csp._id, r_rownum);
+        page = arr._page;
         r = page < Math.ceil(rows_count / rows_on_page) ? true : false;
     }
     return r;
