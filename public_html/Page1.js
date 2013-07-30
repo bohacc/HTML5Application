@@ -11,7 +11,7 @@ function printResult(obj){
             2,
             ['ds:web_search_adresar_pda_json',
              'ds_par:&aparameters=code:'+$(obj).val(),
-             'row_events:["set_onclick:saveSearchText(this)"]',
+             'row_events:["click:saveSearchText(this)"]',
              'field:partner_nazev',
              'field_ref_val:ident2',
              'callbackFce:$("#acollapsiblelist").show()']);
@@ -98,7 +98,7 @@ $(document).bind('pageinit', function(event){
             2,
             ['ds:web_last_search_json',
              'ds_par:&aparameters=code:PDA_SEARCH',
-             'row_events:["set_onclick:saveSearchText(this)"]',
+             'row_events:["click:saveSearchText(this)"]',
              'field_ref_val:ident',
              'field:partner_nazev']);         
                   

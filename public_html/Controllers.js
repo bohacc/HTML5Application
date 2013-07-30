@@ -170,17 +170,24 @@ function refreshPersons(){
     });
 }
 
-function addPerson(){
-    var current = [{id : $('#eventPerson').val(), name : $('#eventPerson option:selected').text()}];
-    if(!existID(persons, current) && current[0].id.length > 0){
-        persons.push(current[0]);
+function addPerson(obj){
+    var current = obj || {id : $('#eventPerson').val(), name : $('#eventPerson option:selected').text()};
+    if(!existID(persons, [current]) && current.id.length > 0){
+        persons.push(current);
+        deleteFromComboBox(current);
         refreshPersons();
     }
+}
+
+function deleteFromComboBox(obj){
+    var element = $('#eventPerson option[value="'+obj.id+'"]');
+    element.remove();
 }
 
 function deletePersonFromList(obj){
     for(key in persons){
         if(persons[key].id == $(obj).attr('id')){
+            $('#eventPerson').append(new Option(persons[key].name, persons[key].id));
             persons.splice(key, 1);
             setDefaultItemPersonCombo();
         }
@@ -309,6 +316,7 @@ function initComboEventPerson(){
         var data_fmt = $.parseJSON(data);
         var state = decodeURIComponent(data_fmt.state);
         var message = decodeURIComponent(data_fmt.message);
+        var person = {};
         if (state === '1'){
             var records = data_fmt.records;
             var str = '<option value="">-- vyberte osobu --<\/option>';//'<option>Účastníci<\/option>';
@@ -316,11 +324,15 @@ function initComboEventPerson(){
                 var code = decodeURIComponent(records[i].code);
                 var name = decodeURIComponent(records[i].name);
                 var selected = decodeURIComponent(records[i].selected);
-                var sel = selected === '1' ? 'selected="selected"' : "";
+                var sel = "";//selected === '1' ? 'selected="selected"' : "";
                 str += '<option '+sel+' value="'+code+'">'+name+'</option>';
+                if(selected === '1'){
+                    person = {id : code, name : name};
+                }
             }
             $('#eventPerson').html(str);
             $('#eventPerson').selectmenu('refresh', 'true');
+            addPerson(person);
         }else{
             alert('Při plnění nabídky pověřená osoba došlo k chybě.\n\n'+message);
         }
@@ -480,7 +492,7 @@ function startTime(id){
     m = checkTime(m);
     s = checkTime(s);
     $(id).text( h + ":" + m + ":" + s );
-    t = setTimeout(function(){startTime(id)},500);
+    t = setTimeout(function(){startTime(id);},500);
 }
 
 function checkTime(i){
@@ -630,7 +642,7 @@ var titles = ["email","mobil","telefon","osoba","adresa","www","skype","twitter"
 var images = ["ODEBRAT","PDA_EMAIL","PDA_SMAZAT"];
 
 function getNextRowsAmount(){
-  amount = typeof(amount) == 'undefined' ? 5 : amount;
+  amount = typeof(amount) === 'undefined' ? 5 : amount;
   return amount; 
 }
 
@@ -776,7 +788,7 @@ function FactoryNavigator(name){
     var obj = eval(name);
     this.getInstance = function(){
         return new obj;
-    }
+    };
 }
 
 function regCtrl(id, id_ctrl, metadata){
@@ -844,9 +856,9 @@ function setRowEvents(row_events, ref_val_id){
         var arow_events = eval(row_events);
         for(var i=0;i<arow_events.length;i++){
             var vals = arow_events[i].split(':');
-            var _p = vals[0].substr(4);
+            var _p = vals[0];
             var _v = decodeURIComponent(vals[1]);
-            $('#'+ref_val_id).attr(_p, _v);
+            $('#'+ref_val_id).on(_p, function(){eval(_v);} );
         }
     }
 }
@@ -1462,7 +1474,7 @@ function changeButtonsCLToolbar2(obj){
         if(!$(obj).closest('table').parent().find('.bt_save').length){
             var str = '<table style="width: 100%"><tr>'+
                       '    <td style="width: 50%"><a href="#" style="width: 100%" data-icon="check" data-inline="true" data-role="button" class="bt_save" onclick="">Uložit</a></td>'+
-                      '    <td style="width: 50%"><a href="#" style="width: 100%" data-icon="delete" data-inline="true" data-role="button" class="bt_cancel" onclick="changeButtonsCLToolbar2(this);">Zrušit</a></td>'
+                      '    <td style="width: 50%"><a href="#" style="width: 100%" data-icon="delete" data-inline="true" data-role="button" class="bt_cancel" onclick="changeButtonsCLToolbar2(this);">Zrušit</a></td>'+
                       '</tr></table>';        
             $(obj).closest('table').after(str).trigger('create');
             $(obj).closest('table').parent().find('a').button();
@@ -1508,14 +1520,14 @@ function changeButtonsCLToolbar(obj){
         if($(obj).hasClass("bt_save")){
             $(obj).closest('table').parent().parent().parent().find('.row_data_item').each(function(){
                 $(this).find('.data_value').text($(this).find('input[type=text]').val());
-                if($(this).find('input[type=text]').val().length === 0) { $(this).closest('li').hide() };
+                if($(this).find('input[type=text]').val().length === 0) { $(this).closest('li').hide(); };
                 $(this).find('input[type=text]').remove();
                 $(this).find('.data_value').show();
             }); 
         }
         if($(obj).hasClass("bt_cancel")){
             $(obj).closest('table').parent().parent().parent().find('.row_data_item').each(function(){
-                if($(this).find('.data_value').text().length === 0) { $(this).closest('li').hide() };
+                if($(this).find('.data_value').text().length === 0) { $(this).closest('li').hide(); };
             });
             $(obj).closest('table').parent().parent().parent().find('.row_data_item').find('.data_value').show();            
             $(obj).closest('table').parent().parent().parent().find('.row_data_item').find('input[type="text"]').remove();            

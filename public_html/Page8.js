@@ -37,7 +37,7 @@ function searchPerson(o){
         regCtrl('#acollapsiblelist',
                 2,
                 ['ds:web_search_adresar_pda_json',
-                 'ds_par:&aparameters=code:'+$('#last-name').val(),
+                 'ds_par:&aparameters=code:'+$('#last-name').val()+'&aparameters=type:3',
                  'row_events:["set_onclick:openPerson(this)"]',
                  'field:partner_nazev',
                  'field_ref_val:ident2',

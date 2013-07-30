@@ -19,7 +19,7 @@ function searchCompany(o){
         regCtrl('#acollapsiblelist',
                 2,
                 ['ds:web_search_adresar_pda_json',
-                 'ds_par:&aparameters=code:'+$('#name').val(),
+                 'ds_par:&aparameters=code:'+$('#name').val()+'&aparameters=type:2',
                  'row_events:["set_onclick:openPartner(this)"]',
                  'field:partner_nazev',
                  'field_ref_val:ident2',
