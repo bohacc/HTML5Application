@@ -10,10 +10,12 @@ function printResult(obj){
     regCtrl('#acollapsiblelist',
             2,
             ['ds:web_search_adresar_pda_json',
-             'ds_par:&aparameters=code:'+$(obj).val(),
+             'ds_par:&aparameters=code:'+$(obj).val()+'&aparameters=aamount:'+getNextRowsAmount(),
              'row_events:["click:saveSearchText(this)"]',
              'field:partner_nazev',
              'field_ref_val:ident2',
+             'call_for_next_rows:1',
+             'ident;rows_count',
              'callbackFce:$("#acollapsiblelist").show()']);
     initDocs();
 };
@@ -43,7 +45,7 @@ function emailEnter(event, obj){
 $(document).bind('pageinit', function(event){
     page = new Page(1, 'CRM | Agenda', 0);
     initPage(page);
-    setNextRowsAmount(50);
+    setNextRowsAmount(20);
     
     var row_markup = '<a href="javascript:void(0);" onclick="@@CALL@@(this)">'+
                      '@@CONTENT@@'+

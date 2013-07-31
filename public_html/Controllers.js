@@ -906,7 +906,7 @@ function setValue(v, ref_val, cs){
         }
     }
     //-- LISTVIEW
-    if(cs._type === 2){         
+    if(cs._type === 2){                
         $(cs._id).append('<li id="'+aref_val_id+'">'+
                          '  <a href="javascript:void(0);">'+
                          '    <h3 class="ui-li-heading">'+v+'</h3>'+
@@ -1204,10 +1204,10 @@ function initSave(){
     }
 }
 
-function initDocs(callsStackPaging, id, row_item){
+function initDocs(csPaging, id, row_item){
     var arr = callsStack;
     // for paging
-    if (callsStackPaging !== undefined){
+    if (csPaging !== undefined){
         var item = getCurrentCallsStackPaging(id, row_item);
         setCallsStackPagingPage(item);
         arr = [item];
@@ -1239,6 +1239,7 @@ function initDocs(callsStackPaging, id, row_item){
                     break;
                 case 2: 
                     var data = data_fmt.data;
+                    var rows_count = typeof data_fmt.rows_count === 'undefined' ? "" : data_fmt.rows_count;
                     for (var i=0;i<data.length;i++){
                         var tmp = data[i];
                         var v = decodeURIComponent(tmp[afield]);
@@ -1248,6 +1249,25 @@ function initDocs(callsStackPaging, id, row_item){
                         }
                         setValue(v, v_ref, tmpc);
                     }
+                    
+                    //-- tohle by melo byt na jednom miste spolu s kodem v setValue
+                    // if paging and not exists in callsstack then add it
+                    if (tmpc._call_for_next_rows.length > 0 && existsCall(tmpc) === 0){ 
+                        var cs_new = Object.create(tmpc);
+                        cs_new._row_item = 1;  
+                        callsStackPaging.push(cs_new);
+                    }
+                    // row for next records
+                    var tmp_html = $(tmpc._id);
+                    var button_next = tmp_html.find('.button_next_rows');
+                    if(button_next){
+                        button_next.remove();
+                    }                    
+                    if (enablePagingNext(tmpc, 1, rows_count)){   
+                        tmp_html.append('<li data-icon="false" class="button_next_rows"><a href="javascript:void(0);" onclick="initDocs(1,\''+tmpc._id+'\','+1+');">další záznamy</a></li>').trigger('create');
+                        refreshListview(tmpc._id);
+                    }                    
+                    
                     break;
                 case 3:
                     var data = data_fmt.data;
