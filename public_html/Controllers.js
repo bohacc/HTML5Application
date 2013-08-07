@@ -34,6 +34,14 @@
 var persons = [];
 var form_method = 'get';
 
+function existCompany(code){
+    var r = false;
+    if(typeof code !== "undefined"){
+        r = code.indexOf("0_") === 1 ? false : true;
+    }
+    return r;
+}
+
 function initTaskRecord(obj){
     var id_val = $(obj).parent().find('.ident').val();
     nAjax('web_redir', '&aparameters=akod_r:web_ukoly_zaznam_json&aparameters=spouzetelo:1&aparameters=aid:'+id_val, function(data){
@@ -585,6 +593,15 @@ function setPageHead(page){
         $('#bt_list').append('<li><a id="header_edit" data-icon="delete" onclick="javascript:self.history.back();">Zpět</a></li>').trigger('create');
         $('#bt_list').append('<li><a id="header_edit" data-icon="check" onclick="initSave();">Uložit</a></li>').trigger('create');
     }
+    
+    //--
+    if(page._menu_items){
+        var items = page._menu_items;
+        for(var i = 0,len = items.length; i < len; i++){
+            $('#bt_list').append('<li><a href="'+items[i].anchor+'" id="header_item'+i+'" data-icon="gear">'+items[i].name+'</a></li>').trigger('create');
+        }
+    }
+    
     // hide for empty navbar
     if($('#bt_list li').length === 0){
         $('#header_toolbar').hide();
@@ -777,11 +794,12 @@ function CallStackSave(aid, afield, atable, afield_ref, aref_val){
     this._field_ref_val = aref_val;
 }
 
-function Page(atype, acaption, acaption_add_to_default){
+function Page(atype, acaption, acaption_add_to_default, amenu_items){
     this._type = atype;
     this._caption = typeof(acaption) !== 'undefined' ? acaption : "";
     this._caption_add_to_default = typeof(acaption_add_to_default) !== 'undefined' ? acaption_add_to_default : "";
     this._state = 0; // 0 - default,1 - new
+    this._menu_items = amenu_items;
 }
 
 function FactoryNavigator(name){

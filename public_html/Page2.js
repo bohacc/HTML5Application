@@ -61,7 +61,22 @@ function saveItemRows(obj){
 // INICIALIZACE CONTROLLERU 
 
 $(document).bind('pageinit', function(event){
-    page = new Page(2);
+    var menu_items = [];
+    var name = "";
+    var anchor = "";
+    var aedit = "";
+    var code = getParam('apartner');
+    if(existCompany(code)){
+        aedit = "2";
+        name = "Změnit partnera";     
+    }else{
+        aedit = "1";
+        name = "Přidat partnera";
+    }
+    anchor = "web_redir_backend?ap=akod_r:CRM_KONTAKTY_PDA_PAGE7&ap=apartner:"+code+"&ap=aedit:"+aedit;
+    menu_items.push({"name":name, "anchor":anchor});
+    
+    page = new Page(2, '', 0, menu_items);
     initPage(page);
     
     var row_markup = '<a href="javascript:void(0);" onclick="@@CALL@@(this)">'+

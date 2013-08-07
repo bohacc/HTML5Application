@@ -4,6 +4,13 @@
  */
 
 // FUNCTION FOR CONTROLLERS
+function getPartnerObject(){
+    var aident = getParam('apartner');
+    var aedit = getParam('aedit');
+    var obj = {ident : aident, edit : aedit};
+    return obj;
+}
+
 function searchCompany(o){
     var obj = $('#name');
     if($(obj).val().length < 3){
@@ -20,13 +27,13 @@ function searchCompany(o){
                 2,
                 ['ds:web_search_adresar_pda_json',
                  'ds_par:&aparameters=code:'+$('#name').val()+'&aparameters=type:2',
-                 'row_events:["set_onclick:openPartner(this)"]',
+                 'row_events:["click:selectPartner(this, getPartnerObject())"]',
                  'field:partner_nazev',
                  'field_ref_val:ident2',
                  'callbackFce:searchCompanyCallback()']);
         initDocs();    
     }else{
-        saveNewPartner();
+        saveNewPartner(getPartnerObject());
     }
 }
 
@@ -49,7 +56,7 @@ function searchCompanyCallback(){
             $('#amsg').slideDown('slow');
             $('#bt_post .ui-btn-text').html('Přesto zapsat novou firmu <br>'+$('#name').val()).trigger('create');
         }else{
-            saveNewPartner();
+            saveNewPartner(getPartnerObject());
         }
     }
     search_state.str = $('#name').val();    
@@ -61,7 +68,7 @@ function searchCompanyKeybord(event, obj){
     }
 }
 
-function saveNewPartner(){
+function saveNewPartner(obj){
     var tmp = $('#name').val();
     nAjax('web_redir',
           '&aparameters=akod_r:web_eshop_zalozit_uziv_json&aparameters=spouzetelo:1&aparameters=anazev_fak:'+tmp,
@@ -75,8 +82,12 @@ function saveNewPartner(){
                         '&aparameters=akod_r:web_adresar_pda_ident_json&aparameters=spouzetelo:1&aparameters=apartner:'+partner,
                         function(data){
                             var data_fmt = $.parseJSON(data);
-                            var ident = decodeURIComponent(data_fmt.ident);
-                            goToPageWithParams('web_redir_backend', 'ap=akod_r:CRM_KONTAKTY_PDA_PAGE2&ap=apartner:'+ident);
+                            var ident_new = decodeURIComponent(data_fmt.ident);
+                            if(obj.edit.length > 0){
+                                modifyPartner(obj, ident_new);
+                            }else{
+                                goToPageWithParams('web_redir_backend', 'ap=akod_r:CRM_KONTAKTY_PDA_PAGE2&ap=apartner:'+ident_new);
+                            };
                         });
               }else{
                   alert(msg);
@@ -84,9 +95,38 @@ function saveNewPartner(){
           });    
 }
 
+function selectPartner(obj, params){
+    //console.log('selectPartner');
+    var ident_new = getPartnerFromSearchResult(obj);
+    if(params.edit.length > 0){
+        modifyPartner(params, ident_new);
+    }else{
+        openPartner(obj);
+    }
+}
+
+function modifyPartner(obj, ident_new){
+    nAjax('web_redir',
+          '&aparameters=akod_r:web_zmenit_partnera_json&aparameters=spouzetelo:1&aparameters=aident:'+obj.ident+'&aparameters=aedit:'+obj.edit+'&aparameters=aident_new:'+ident_new,
+          function(data){
+              var data_fmt = $.parseJSON(data);
+              var state = decodeURIComponent(data_fmt.state);
+              var msg = decodeURIComponent(data_fmt.message);
+              if(state == "1"){
+                  goToPageWithParams('web_redir_backend', 'ap=akod_r:CRM_KONTAKTY_PDA_PAGE2&ap=apartner:'+obj.ident);
+              }else{
+                  alert(msg);
+              }
+          });
+}              
+
 function openPartner(obj){
-    var tmp = $('#ref_id_'+$(obj).attr('id')).val(); 
+    var tmp = getPartnerFromSearchResult(obj); 
     goToPageWithParams('web_redir_backend', 'ap=akod_r:CRM_KONTAKTY_PDA_PAGE2&ap=apartner:'+tmp);
+}
+
+function getPartnerFromSearchResult(obj){
+    return $('#ref_id_'+$(obj).attr('id')).val(); 
 }
 
 // INICIALIZACE CONTROLLERU 
