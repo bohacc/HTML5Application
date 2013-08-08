@@ -598,7 +598,7 @@ function setPageHead(page){
     if(page._menu_items){
         var items = page._menu_items;
         for(var i = 0,len = items.length; i < len; i++){
-            $('#bt_list').append('<li><a href="'+items[i].anchor+'" id="header_item'+i+'" data-icon="gear">'+items[i].name+'</a></li>').trigger('create');
+            $('#bt_list').append('<li><a href="'+items[i].anchor+'" id="header_item'+i+'" data-icon="gear" data-ajax="false">'+items[i].name+'</a></li>').trigger('create');
         }
     }
     

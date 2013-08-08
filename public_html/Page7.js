@@ -26,11 +26,13 @@ function searchCompany(o){
         regCtrl('#acollapsiblelist',
                 2,
                 ['ds:web_search_adresar_pda_json',
-                 'ds_par:&aparameters=code:'+$('#name').val()+'&aparameters=type:2',
+                 'ds_par:&aparameters=code:'+$('#name').val()+'&aparameters=type:2'+'&aparameters=aamount:'+getNextRowsAmount(),
                  'row_events:["click:selectPartner(this, getPartnerObject())"]',
                  'field:partner_nazev',
                  'field_ref_val:ident2',
-                 'callbackFce:searchCompanyCallback()']);
+                 'call_for_next_rows:1',
+                 'nested_fields:ident;rows_count',
+                 'callbackFce:searchCompanyCallback()']);            
         initDocs();    
     }else{
         saveNewPartner(getPartnerObject());
@@ -112,8 +114,9 @@ function modifyPartner(obj, ident_new){
               var data_fmt = $.parseJSON(data);
               var state = decodeURIComponent(data_fmt.state);
               var msg = decodeURIComponent(data_fmt.message);
+              var ident_after_post = decodeURIComponent(data_fmt.ident);
               if(state == "1"){
-                  goToPageWithParams('web_redir_backend', 'ap=akod_r:CRM_KONTAKTY_PDA_PAGE2&ap=apartner:'+obj.ident);
+                  goToPageWithParams('web_redir_backend', 'ap=akod_r:CRM_KONTAKTY_PDA_PAGE2&ap=apartner:'+ident_after_post);
               }else{
                   alert(msg);
               }
@@ -134,6 +137,8 @@ function getPartnerFromSearchResult(obj){
 $(document).bind('pageinit', function(event){
     page = new Page(7,'CRM Kontakty | Nová firma',0);
     initPage(page);
+    
+    setNextRowsAmount(20);
     
     regCtrl('#bt_post', 1, ['on_click:searchCompany()']);
     regCtrl('#name', 1, ['set_onkeypress:searchCompanyKeybord(event, this);searchCompanySetDefault(this)']);

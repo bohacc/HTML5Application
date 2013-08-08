@@ -37,10 +37,12 @@ function searchPerson(o){
         regCtrl('#acollapsiblelist',
                 2,
                 ['ds:web_search_adresar_pda_json',
-                 'ds_par:&aparameters=code:'+$('#last-name').val()+'&aparameters=type:3',
+                 'ds_par:&aparameters=code:'+$('#last-name').val()+'&aparameters=type:3'+'&aparameters=aamount:'+getNextRowsAmount(),
                  'row_events:["set_onclick:openPerson(this)"]',
                  'field:partner_nazev',
                  'field_ref_val:ident2',
+                 'call_for_next_rows:1',
+                 'nested_fields:ident;rows_count',
                  'callbackFce:searchPersonCallback()']);
         initDocs();    
     }else{
@@ -109,6 +111,8 @@ function saveNewPerson(obj){
 $(document).bind('pageinit', function(event){
     page = new Page(8,'CRM Kontakty | Nová osoba',0);
     initPage(page);
+    
+    setNextRowsAmount(20);
     
     regCtrl('#bt_post', 1, ['on_click:searchPerson(this)']);
     regCtrl('#last-name', 1, ['set_onkeypress:searchPersonKeybord(event, this);searchPersonSetDefault(this)']);

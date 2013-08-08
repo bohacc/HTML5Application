@@ -15,7 +15,7 @@ function printResult(obj){
              'field:partner_nazev',
              'field_ref_val:ident2',
              'call_for_next_rows:1',
-             'ident;rows_count',
+             'nested_fields:ident;rows_count',
              'callbackFce:$("#acollapsiblelist").show()']);
     initDocs();
 };
