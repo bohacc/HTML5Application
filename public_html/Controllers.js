@@ -889,7 +889,7 @@ function refreshListview(id){
     } 
 }
 
-function setListRows(cs, content, obj_ins, rownum, printNextButton){
+function setListRows(cs, content, obj_ins, rownum, printNextButton, main_collaps_id){
     if (cs._call_for_next_rows.length > 0 && cs._page > 1){
         if (rownum == cs._row_item) {
             var tmp = $(content).find('li.data');
@@ -1085,7 +1085,7 @@ function setValue(v, ref_val, cs){
         $(tmp_id+' h3').each(function(){
             j++;
             if(parseInt(r_rownum) === j){
-                setListRows(cs, str, $(this).next(), r_rownum, printNextButton);
+                setListRows(cs, str, $(this).next(), r_rownum, printNextButton, tmp_id);
                 //zmena caption
                 if(cl_caption !== undefined && cl_caption !== null){
                     $(this).find('.ui-btn-text').text(decodeURIComponent(cl_caption));
